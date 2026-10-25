@@ -685,7 +685,7 @@
       "msg": "Başlayalım. VPN sunucu bilgilerinizle bir bağlantı profili ekleyin.\n\nHenüz sunucunuz yok mu? Sorun değil. Aşağıdaki rehber ücretsiz bir tane kurmayı gösteriyor.",
       "helpBtn": {
         "label": "Nasıl yapıldığını göster",
-        "url": "https://hiddify.com/manager/"
+        "url": "https://hiddify.org"
       }
     },
     "unknownDomainsWarning": {

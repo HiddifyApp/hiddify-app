@@ -15,7 +15,7 @@
 ![Hiddify logo + text](https://github.com/hiddify/hiddify-app/assets/125398461/d821cfe0-b4c4-441f-be4e-eb9209f59542)
     -->
 
-[![GP-Intalls](https://img.shields.io/endpoint?color=green&logo=google-play&logoColor=green&url=https%3A%2F%2Fplay.cuzi.workers.dev%2Fplay%3Fi%3Dapp.hiddify.com%26l%3DGoogle%2520Play%26m%3D%24shortinstalls&style=flat-square)](https://play.google.com/store/apps/details?id=app.hiddify.com) [![Downloads](https://img.shields.io/github/downloads/hiddify/hiddify-next/total?style=flat-square&logo=github)](https://github.com/hiddify/hiddify-app/releases/)[![Last Version](https://img.shields.io/github/release/hiddify/hiddify-next/all.svg?style=flat-square)](https://github.com/hiddify/hiddify-app/releases/)[![Last Release Date](https://img.shields.io/github/release-date/hiddify/hiddify-next.svg?style=flat-square)](https://github.com/hiddify/hiddify-app/releases/)[![commits](https://img.shields.io/github/commit-activity/m/hiddify/hiddify-next?style=flat-square)](https://github.com/hiddify/hiddify-app/)
+[![Downloads](https://img.shields.io/github/downloads/HiddifyApp/hiddify-app/total?style=flat-square&logo=github)](https://github.com/HiddifyApp/hiddify-app/releases/tag/draft) [![Latest Release](https://img.shields.io/github/v/release/HiddifyApp/hiddify-app?include_prereleases&style=flat-square)](https://github.com/HiddifyApp/hiddify-app/releases)
 [![Youtube](https://img.shields.io/youtube/channel/views/UCxrmeMvVryNfB4XL35lXQNg?label=Youtube&style=flat-square&logo=youtube)](https://www.youtube.com/@hiddify)[![Telegram Channel](https://img.shields.io/endpoint?label=Channel&style=flat-square&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fhiddify&color=blue)](https://telegram.dog/hiddify)[![Telegram Group](https://img.shields.io/endpoint?color=neon&label=Support%20Group&style=flat-square&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fhiddify_board)](https://telegram.dog/hiddify_board/5)
 
 </div>
@@ -57,15 +57,6 @@ Vless、Vmess、Reality、TUIC、Hysteria、Wireguard、SSH など。
 
 ⭐ イラン、中国、ロシア、その他の国に適した構成
 
-📱公式ストアで購入可能
-
-## 🛍️ 店舗で入手
-
-<a href="https://apps.apple.com/us/app/hiddify-proxy-vpn/id6596777532?platform=iphone"><img height=50px src="https://github.com/user-attachments/assets/a7c62126-07ce-4f18-8197-bbb672f6d8be"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="https://play.google.com/store/apps/details?id=app.hiddify.com"><img height=50px src="docs/google-play-badge.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="https://apps.microsoft.com/detail/Hiddify/9pdfnl3qv2s5?mode=mini" target="_blank"><img height=50px src="https://github.com/hiddify/hiddify-next/assets/125398461/620750bb-4459-41b5-9f86-ba82119345b8" /></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-
 ## 📥 直接ダウンロード
 
 <div align=left>
@@ -78,42 +69,34 @@ Vless、Vmess、Reality、TUIC、Hysteria、Wireguard、SSH など。
     </thead>
     <tbody align=left>
         <tr>
-            <td>iOS</td>
-            <td>
-                <a href="https://github.com/hiddify/hiddify-app/releases/latest/download/Hiddify-iOS.ipa"><img src="https://img.shields.io/badge/IPA-Universal-c0c0c0.svg?logo=ios"></a>
-            </td>
-        </tr>
-        <tr>
         <td>Android</td>
             <td>
-                <a href="https://github.com/hiddify/hiddify-app/releases/latest/download/Hiddify-Android-universal.apk"><img src="https://img.shields.io/badge/APK-Universal-044d29.svg?logo=android"></a><br>
-                <a href="https://github.com/hiddify/hiddify-app/releases/latest/download/Hiddify-Android-arm64.apk"><img src="https://img.shields.io/badge/APK-ARMv8-168039.svg?logo=android"></a><br>
-                <a href="https://github.com/hiddify/hiddify-app/releases/latest/download/Hiddify-Android-arm7.apk"><img src="https://img.shields.io/badge/APK-ARMv7-45bf55.svg?logo=android"></a><br>
-                <a href="https://github.com/hiddify/hiddify-app/releases/latest/download/Hiddify-Android-x86_64.apk"><img src="https://img.shields.io/badge/APK-x64-96ed89.svg?logo=android"></a>
+                <a href="https://github.com/HiddifyApp/hiddify-app/releases/download/draft/Hiddify-Android-universal.apk"><img src="https://img.shields.io/badge/APK-Universal-044d29.svg?logo=android"></a><br>
+                <a href="https://github.com/HiddifyApp/hiddify-app/releases/download/draft/Hiddify-Android-arm64.apk"><img src="https://img.shields.io/badge/APK-ARMv8-168039.svg?logo=android"></a><br>
+                <a href="https://github.com/HiddifyApp/hiddify-app/releases/download/draft/Hiddify-Android-arm7.apk"><img src="https://img.shields.io/badge/APK-ARMv7-45bf55.svg?logo=android"></a><br>
+                <a href="https://github.com/HiddifyApp/hiddify-app/releases/download/draft/Hiddify-Android-x86_64.apk"><img src="https://img.shields.io/badge/APK-x64-96ed89.svg?logo=android"></a>
             </td>
         </tr>
         <tr>
             <td>Windows</td>
             <td>
-                <a href="https://github.com/hiddify/hiddify-app/releases/latest/download/Hiddify-Windows-Setup-x64.Msix"><img src="https://img.shields.io/badge/OfficialSetup-x64-0078d7.svg?logo=windows"></a><br>
-                <a href="https://github.com/hiddify/hiddify-app/releases/latest/download/Hiddify-Windows-Setup-x64.exe"><img src="https://img.shields.io/badge/Setup-x64-2d7d9a.svg?logo=windows"></a><br>
-                <a href="https://github.com/hiddify/hiddify-app/releases/latest/download/Hiddify-Windows-Portable-x64.zip"><img src="https://img.shields.io/badge/Portable-x64-67b7d1.svg?logo=windows"></a>
+                <a href="https://github.com/HiddifyApp/hiddify-app/releases/download/draft/Hiddify-Windows-x64.msix"><img src="https://img.shields.io/badge/OfficialSetup-x64-0078d7.svg?logo=windows"></a><br>
+                <a href="https://github.com/HiddifyApp/hiddify-app/releases/download/draft/Hiddify-Windows-Setup-x64.exe"><img src="https://img.shields.io/badge/Setup-x64-2d7d9a.svg?logo=windows"></a><br>
+                <a href="https://github.com/HiddifyApp/hiddify-app/releases/download/draft/Hiddify-Windows-Portable-x64.zip"><img src="https://img.shields.io/badge/Portable-x64-67b7d1.svg?logo=windows"></a>
             </td>
         </tr>
         <tr>
             <td>macOS</td>
             <td>
-                <a href="https://apps.apple.com/us/app/hiddify-proxy-vpn/id6596777532"><img src="https://img.shields.io/badge/IPA-ARM-D33A54.svg?logo=apple"></a><br>
-                <a href="https://github.com/hiddify/hiddify-next/releases/latest/download/Hiddify-MacOS.dmg"><img src="https://img.shields.io/badge/DMG-Universal-ea005e.svg?logo=apple"></a><br>
-                <a href="https://github.com/hiddify/hiddify-next/releases/latest/download/Hiddify-MacOS-Installer.pkg"><img src="https://img.shields.io/badge/PKG-Universal-bc544b.svg?logo=apple" /></a>
+                <a href="https://github.com/HiddifyApp/hiddify-app/releases/download/draft/Hiddify-MacOS.dmg"><img src="https://img.shields.io/badge/DMG-Universal-ea005e.svg?logo=apple"></a><br>
+                <a href="https://github.com/HiddifyApp/hiddify-app/releases/download/draft/Hiddify-MacOS-Installer.pkg"><img src="https://img.shields.io/badge/PKG-Universal-bc544b.svg?logo=apple" /></a>
             </td>
         </tr>
         <tr>
             <td>Linux</td>
             <td>
-                <a href="https://github.com/hiddify/hiddify-app/releases/latest/download/Hiddify-Linux-x64.AppImage"><img src="https://img.shields.io/badge/AppImage-x64-f84e29.svg?logo=linux"> </a><br>
-                <a href="https://github.com/hiddify/hiddify-app/releases/latest/download/Hiddify-Debian-x64.deb"><img src="https://img.shields.io/badge/DebPackage-x64-FF9966.svg?logo=debian"> </a><br>
-                <a href="https://github.com/hiddify/hiddify-app/releases/latest/download/Hiddify-rpm-x64.rpm"><img src="https://img.shields.io/badge/RpmPackage-x64-F1B42F.svg?logo=redhat"> </a>
+                <a href="https://github.com/HiddifyApp/hiddify-app/releases/download/draft/Hiddify-Linux-x64-AppImage.AppImage"><img src="https://img.shields.io/badge/AppImage-x64-f84e29.svg?logo=linux"> </a><br>
+                <a href="https://github.com/HiddifyApp/hiddify-app/releases/download/draft/Hiddify-Debian-x64.deb"><img src="https://img.shields.io/badge/DebPackage-x64-FF9966.svg?logo=debian"> </a><br>
             </td>
         </tr>
     </tbody>
@@ -128,14 +111,14 @@ Vless、Vmess、Reality、TUIC、Hysteria、Wireguard、SSH など。
 
 <div align="center">
 
-[![Tutorials on Wiki](https://github.com/hiddify/hiddify-app/assets/125398461/95bb5cf8-c143-4934-87d6-b9d4c31e035e)](https://hiddify.com/app/)
+[![Tutorials on Wiki](https://github.com/hiddify/hiddify-app/assets/125398461/95bb5cf8-c143-4934-87d6-b9d4c31e035e)](https://github.com/HiddifyApp/hiddify-app/wiki)
 
 
 </div>
 
 ## 🌎 翻訳
 
-インストールとチュートリアル `/assets/translations` にある JSON ファイルを手動で編集するか、[Inlang オンラインエディタ](https://fink.inlang.com/editor/github.com/hiddify/hiddify-app)を使って、既存の言語を改良したり、新しい言語を追加したりすることができます。
+インストールとチュートリアル `/assets/translations` にある JSON ファイルを手動で編集するか、[Inlang オンラインエディタ](https://fink.inlang.com/editor/github.com/HiddifyApp/hiddify-app)を使って、既存の言語を改良したり、新しい言語を追加したりすることができます。
 
 ## ✏️ 謝辞
 
@@ -167,31 +150,6 @@ Vless、Vmess、Reality、TUIC、Hysteria、Wireguard、SSH など。
 
 また、私たちのサービスには財政的な支援も必要です。私たちの活動はすべて自発的に行われており、経済的支援はプロジェクトの発展に費やされます。私たちのサポートアドレスは[こちら](https://hiddify.com/donation-and-support/)からご覧いただけます。
 
-## 👩‍🏫 コラボレーションおよび連絡先
+## 著作権とライセンス
 
-Hiddify はコミュニティドリブンのプロジェクトです。コントリビュートすることに興味がある方は、[コントリビューションガイドライン](./CONTRIBUTING.md)をお読みください。私たちは特に以下の分野において、どのような協力でもいただけるとありがたいです: **Flutter、Go、iOS開発（Swift）、Androi d開発（Kotlin）。**
-
-<div align=center>
-
-<br>
-
-[![Email](https://img.shields.io/badge/Email-contribute@hiddify.com-005FF9?style=flat-square&logo=mail.ru)](mailto:contribute@hiddify.com)
-[![Telegram Channel](https://img.shields.io/endpoint?label=Channel&style=flat-square&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fhiddify&color=blue)](https://telegram.dog/hiddify)
-[![Telegram Group](https://img.shields.io/endpoint?color=neon&label=Support%20Group&style=flat-square&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fhiddify_board)](https://telegram.dog/hiddify_board)
-[![Youtube](https://img.shields.io/youtube/channel/views/UCxrmeMvVryNfB4XL35lXQNg?label=Youtube&style=flat-square&logo=youtube)](https://www.youtube.com/@hiddify)
-[![Twitter](https://img.shields.io/twitter/follow/hiddify_com?color=%231DA1F2&logo=twitter&logoColor=1DA1F2&style=flat-square)](https://twitter.com/intent/follow?screen_name=hiddify_com)
-
-</div>
-
-<p align=center>
- このプロジェクトに参加してくれているすべての人に感謝しております。ここにいる人たちもいるし、GitHub の外にもたくさんいます。それは私たちにとって大きな意味があります。 ♥
- </p>
-
-<p align=center>
-<a href="https://github.com/hiddify/hiddify-app/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=hiddify/hiddify-next" />
-</a>
-</p>
-<p align=center>
- <a rel="" target="_blank" href="https://contrib.rocks">Contrib.Rocks</a> で作成。
-</p>
+Copyright © 2026 HiddifyApp およびコントリビューター。本リポジトリは Hiddify のフォークであり、上流および第三者のコードを含みます。それぞれの著作権は各権利者に帰属します。本フォークは [LICENSE.md](LICENSE.md) に記載された Hiddify Extended GNU GPL v3 と追加条件に基づいて配布されます。本フォークでの変更には、HiddifyApp リポジトリ専用のダウンロードリンクと更新フィードが含まれます。

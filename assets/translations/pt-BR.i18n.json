@@ -687,7 +687,7 @@
       "msg": "Vamos começar. Adicione um perfil de conexão com os detalhes do seu servidor VPN.\n\nAinda não tem servidor? Sem problema. O guia abaixo mostra como criar um de graça.",
       "helpBtn": {
         "label": "Mostre-me como",
-        "url": "https://hiddify.com/manager/"
+        "url": "https://hiddify.org"
       }
     },
     "unknownDomainsWarning": {

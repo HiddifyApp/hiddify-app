@@ -722,7 +722,7 @@
       "msg": "لنبدأ. أضف ملف اتصال يحتوي على تفاصيل خادم VPN الخاص بك.\n\nليس لديك خادم بعد؟ لا مشكلة. يوضح لك الدليل أدناه كيفية إعداد واحد مجانًا.",
       "helpBtn": {
         "label": "أرني كيف",
-        "url": "https://hiddify.com/manager/"
+        "url": "https://hiddify.org"
       }
     },
     "unknownDomainsWarning": {

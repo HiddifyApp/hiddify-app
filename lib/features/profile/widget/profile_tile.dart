@@ -242,7 +242,7 @@ class ProfileActionButton extends HookConsumerWidget {
       layoutBuilder: (currentChild, previousChildren) => Stack(
         fit: StackFit.expand,
         alignment: Alignment.center,
-        children: [...previousChildren, if (currentChild != null) currentChild],
+        children: [...previousChildren, ?currentChild],
       ),
       child: _leading(context, ref, t, isUpdating, outcome),
     );

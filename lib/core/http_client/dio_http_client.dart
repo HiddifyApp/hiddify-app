@@ -150,8 +150,8 @@ class DioHttpClient with InfraLogger {
     return Options(
       responseType: responseType,
       headers: {
-        if (userAgent != null) "User-Agent": userAgent,
-        if (basicAuth != null) "authorization": basicAuth,
+        "User-Agent": ?userAgent,
+        "authorization": ?basicAuth,
         // "Accept": "application/json",
         // "Content-Type": "application/json",
       },

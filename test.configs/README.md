@@ -2,9 +2,9 @@
 
 ## Step 1 مرحله
 
-You need to install the Hiddify application from [our site](https://app.hiddify.com) or [GitHub](https://github.com/hiddify/hiddify-app/tree/main?tab=readme-ov-file#%EF%B8%8F-get-it-on-stores).
+You need to install Hiddify from the [draft release in our repository](https://github.com/HiddifyApp/hiddify-app/releases/tag/draft).
 
-شما باید ابتدا نرم‌افزار هیدیفای را از [سایت ما](https://app.hiddify.com) یا [گیت‌هاب](https://github.com/hiddify/hiddify-app/tree/main?tab=readme-ov-file#%EF%B8%8F-get-it-on-stores) دانلود کنید.
+شما باید ابتدا نرم‌افزار هیدیفای را از [نسخهٔ درفت مخزن ما](https://github.com/HiddifyApp/hiddify-app/releases/tag/draft) دانلود کنید.
 
 ## Step 2-1: Easy Way
 
