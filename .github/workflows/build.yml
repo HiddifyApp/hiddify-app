@@ -73,6 +73,7 @@ jobs:
           fi
       - name: Apply release versions
         if: ${{ inputs.core-version != '' || inputs.app-version != '' }}
+        shell: bash
         env:
           CORE_VERSION: ${{ inputs.core-version }}
           APP_VERSION: ${{ inputs.app-version }}
@@ -119,6 +120,7 @@ jobs:
         uses: actions/checkout@v6
       - name: Apply release versions
         if: ${{ inputs.core-version != '' || inputs.app-version != '' }}
+        shell: bash
         env:
           CORE_VERSION: ${{ inputs.core-version }}
           APP_VERSION: ${{ inputs.app-version }}
