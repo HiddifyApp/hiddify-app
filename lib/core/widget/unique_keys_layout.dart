@@ -6,10 +6,15 @@ import 'package:flutter/widgets.dart';
 /// tree breaks. Here the earlier one goes at once instead.
 AnimatedSwitcherLayoutBuilder uniqueKeysLayout([AlignmentGeometry alignment = Alignment.center]) =>
     (current, previous) {
-      final keys = <Key?>{current?.key};
-      final kept = [
-        for (final child in previous.reversed)
-          if (child.key == null || keys.add(child.key)) child,
-      ];
-      return Stack(alignment: alignment, children: [...kept.reversed, ?current]);
+      final children = <Widget>[...previous, if (current != null) current];
+      final unique = <Widget>[];
+      final seen = <Key?>{};
+      for (final child in children.reversed) {
+        final key = child.key;
+        if (key == null || seen.add(key)) {
+          unique.add(child);
+        }
+      }
+
+      return Stack(alignment: alignment, children: unique.reversed.toList());
     };

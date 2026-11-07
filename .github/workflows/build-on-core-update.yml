@@ -1,0 +1,142 @@
+name: Build on core update
+
+on:
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      release-current:
+        description: Build and release the latest stable core now, even if it was already built
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      should-build: ${{ steps.check.outputs.should-build }}
+      core-version: ${{ steps.check.outputs.core-version }}
+      app-version: ${{ steps.check.outputs.app-version }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LAST_BUILT_CORE_VERSION: ${{ vars.LAST_BUILT_CORE_VERSION }}
+          FORCE_BUILD: ${{ inputs.release-current }}
+        run: |
+          set -euo pipefail
+          core_tag="$(gh api repos/hiddify/hiddify-core/releases/latest --jq .tag_name)"
+          core_version="${core_tag#v}"
+          if [[ ! "$core_version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "Unsupported hiddify-core release tag: $core_tag" >&2
+            exit 1
+          fi
+
+          baseline="${LAST_BUILT_CORE_VERSION:-$(sed -n 's/^core\.version=//p' dependencies.properties | head -n 1)}"
+          newest="$(printf '%s\n%s\n' "$core_version" "$baseline" | sort -V | tail -n 1)"
+          if [[ "$FORCE_BUILD" != 'true' && ( "$newest" != "$core_version" || "$core_version" == "$baseline" ) ]]; then
+            echo "No newer hiddify-core release (latest=$core_version, built=$baseline)."
+            echo 'should-build=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          current_app_version="$(sed -n 's/^version: *\([0-9][0-9.]*\)+.*/\1/p' pubspec.yaml | head -n 1)"
+          if [[ "$(printf '%s\n%s\n' "$core_version" "$current_app_version" | sort -V | tail -n 1)" == "$core_version" ]]; then
+            app_version="$core_version"
+          else
+            IFS=. read -r app_major app_minor app_patch <<< "$current_app_version"
+            if (( app_patch < 99 )); then
+              app_patch=$((app_patch + 1))
+            elif (( app_minor < 99 )); then
+              app_minor=$((app_minor + 1))
+              app_patch=0
+            elif (( app_major < 99 )); then
+              app_major=$((app_major + 1))
+              app_minor=0
+              app_patch=0
+            else
+              echo 'App version cannot be incremented within the build-number range' >&2
+              exit 1
+            fi
+            app_version="${app_major}.${app_minor}.${app_patch}"
+          fi
+          echo "New core release $core_version; building app version $app_version."
+          echo "core-version=$core_version" >> "$GITHUB_OUTPUT"
+          echo "app-version=$app_version" >> "$GITHUB_OUTPUT"
+          echo 'should-build=true' >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: check
+    if: needs.check.outputs.should-build == 'true'
+    uses: ./.github/workflows/build.yml
+    permissions:
+      actions: write
+      attestations: write
+      contents: read
+      id-token: write
+    secrets: inherit
+    with:
+      upload-artifact: true
+      tag-name: draft
+      channel: prod
+      core-version: ${{ needs.check.outputs.core-version }}
+      app-version: ${{ needs.check.outputs.app-version }}
+      publish-release: false
+      artifact-retention-days: 30
+
+  publish-custom-release:
+    needs: [check, build]
+    if: needs.check.outputs.should-build == 'true' && needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Checkout release template
+        uses: actions/checkout@v6
+      - name: Download platform builds
+        uses: actions/download-artifact@v7
+        with:
+          pattern: "*-${{ needs.check.outputs.app-version }}"
+          merge-multiple: true
+          path: ./out
+      - name: Prepare release notes
+        env:
+          APP_VERSION: ${{ needs.check.outputs.app-version }}
+        run: |
+          set -euo pipefail
+          cp .github/release_message.md release.md
+          python3 .github/scripts/prepare_release_notes.py release.md ./out "v${APP_VERSION}"
+      - name: Publish fork release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APP_VERSION: ${{ needs.check.outputs.app-version }}
+        run: |
+          set -euo pipefail
+          tag="v${APP_VERSION}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" ./out/* --clobber
+            gh release edit "$tag" --title "Hiddify ${APP_VERSION}" --notes-file release.md
+          else
+            gh release create "$tag" ./out/* --title "Hiddify ${APP_VERSION}" --notes-file release.md
+          fi
+
+  remember-built-core:
+    needs: [check, build, publish-custom-release]
+    if: needs.check.outputs.should-build == 'true' && needs.publish-custom-release.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Remember core version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CORE_VERSION: ${{ needs.check.outputs.core-version }}
+        run: gh variable set LAST_BUILT_CORE_VERSION --body "$CORE_VERSION" --repo "$GITHUB_REPOSITORY"

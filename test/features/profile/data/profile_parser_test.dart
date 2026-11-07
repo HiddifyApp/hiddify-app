@@ -479,6 +479,26 @@ void main() {
       );
     });
 
+    test("malformed numeric values are ignored instead of treating them as unlimited", () {
+      expectRemote(
+        parseRemoteWithHeaders({
+          "profile-title": "p",
+          "subscription-userinfo": "upload=100;download=200;total=bogus;expire=1704054600",
+        }),
+        (rp) => expect(rp.subInfo, isNull),
+      );
+    });
+
+    test("negative numeric values are ignored as invalid", () {
+      expectRemote(
+        parseRemoteWithHeaders({
+          "profile-title": "p",
+          "subscription-userinfo": "upload=100;download=-200;total=1000;expire=1704054600",
+        }),
+        (rp) => expect(rp.subInfo, isNull),
+      );
+    });
+
     test("empty header yields null subInfo but still parses", () {
       expectRemote(
         parseRemoteWithHeaders({"profile-title": "p", "subscription-userinfo": ";"}),

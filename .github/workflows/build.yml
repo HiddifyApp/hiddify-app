@@ -11,6 +11,18 @@ on:
       channel:
         type: string
         default: "dev"
+      core-version:
+        type: string
+        default: ""
+      app-version:
+        type: string
+        default: ""
+      publish-release:
+        type: boolean
+        default: true
+      artifact-retention-days:
+        type: number
+        default: 1
 
 env:
   IS_GITHUB_ACTIONS: 1
@@ -19,6 +31,9 @@ env:
   NDK_VERSION: r28c
   UPLOAD_ARTIFACT: "${{ inputs.upload-artifact }}"
   TAG_NAME: "${{ inputs.tag-name }}"
+  CORE_VERSION: "${{ inputs.core-version }}"
+  APP_VERSION: "${{ inputs.app-version }}"
+  ARTIFACT_SUFFIX: "${{ inputs.app-version != '' && format('-{0}', inputs.app-version) || '' }}"
   TARGET_NAME_gz: "Hiddify-Linux-x64-AppImage.tar"
   TARGET_NAME_AppImage: "Hiddify-Linux-x64-AppImage"
   TARGET_NAME_deb: "Hiddify-Debian-x64"
@@ -42,9 +57,26 @@ jobs:
       contents: read
     outputs:
       draftBuildCode: ${{ steps.draftBuildCode.outputs.datetime }}
+      platforms: ${{ steps.platformMatrix.outputs.include }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Select build platforms
+        id: platformMatrix
+        env:
+          PUBLISH_RELEASE: ${{ inputs.publish-release }}
+        run: |
+          if [[ "$PUBLISH_RELEASE" == 'true' ]]; then
+            echo 'include=[{"platform":"android-apk","os":"ubuntu-latest","targets":"apk"},{"platform":"android-aab","os":"ubuntu-latest","targets":"aab"},{"platform":"windows","os":"windows-latest","aarch":"amd64","targets":"exe,msix,zip"},{"platform":"linux","os":"ubuntu-22.04","aarch":"amd64","targets":"deb,gz,AppImage"},{"platform":"macos","os":"macos-26","aarch":"universal","targets":"dmg,pkg"},{"platform":"macos-appstore","os":"macos-26","aarch":"universal","targets":"pkg,dmg"},{"platform":"ios","os":"macos-26","aarch":"universal","filename":"hiddify-ios","targets":"ipa"}]' >> "$GITHUB_OUTPUT"
+          else
+            echo 'include=[{"platform":"android-apk","os":"ubuntu-latest","targets":"apk"},{"platform":"android-aab","os":"ubuntu-latest","targets":"aab"},{"platform":"windows","os":"windows-latest","aarch":"amd64","targets":"exe,msix,zip"},{"platform":"linux","os":"ubuntu-22.04","aarch":"amd64","targets":"deb,gz,AppImage"},{"platform":"macos","os":"macos-26","aarch":"universal","targets":"dmg,pkg"}]' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Apply release versions
+        if: ${{ inputs.core-version != '' || inputs.app-version != '' }}
+        env:
+          CORE_VERSION: ${{ inputs.core-version }}
+          APP_VERSION: ${{ inputs.app-version }}
+        run: python3 .github/scripts/apply_release_versions.py "$CORE_VERSION" "$APP_VERSION"
       - uses: subosito/flutter-action@v2.21.0 #issue with 2.13
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
@@ -65,7 +97,7 @@ jobs:
 
       - name: make draftBuildCode
         id: draftBuildCode
-        run: echo "::set-output name=datetime::$(date +'%d.%H.%M')"
+        run: echo "datetime=$(date +'%d.%H.%M')" >> "$GITHUB_OUTPUT"
 
 
   build:
@@ -75,36 +107,29 @@ jobs:
       # Azure Artifact Signing (azure/login OIDC) and actions/attest-build-provenance
       id-token: write
       attestations: write
-    continue-on-error: ${{ matrix.platform != 'ios' }}
+    continue-on-error: ${{ inputs.publish-release && matrix.platform != 'ios' }}
 
     strategy:
       fail-fast: false
       matrix:
-        include:
-          # Quote multi-target lists: in YAML flow maps, commas start a new key
-          # (`targets: exe,msix,zip` was parsed as targets=exe only).
-          - { platform: android-apk,       os: ubuntu-latest,  targets: apk }
-          - { platform: android-aab,       os: ubuntu-latest,  targets: aab }
-          - { platform: windows,          os: windows-latest, aarch: amd64,     targets: "exe,msix,zip" }
-          - { platform: linux,            os: ubuntu-22.04,   aarch: amd64,     targets: "deb,gz,AppImage" }
-          # - { platform: linux-amd64,      os: ubuntu-22.04,   aarch: amd64,     targets: "deb,gz" }
-          # - { platform: linux-arm64,      os: ubuntu-24.04-arm, aarch: arm64,   targets: "deb,gz" }
-          # - { platform: linux-amd64-musl, os: ubuntu-22.04,   aarch: amd64,     targets: "deb,gz" }
-          # - { platform: linux-arm64-musl, os: ubuntu-24.04-arm, aarch: arm64,   targets: "deb,gz" }
-          - { platform: macos,            os: macos-26,       aarch: universal, targets: "dmg,pkg" }
-          - { platform: macos-appstore,   os: macos-26,       aarch: universal, targets: "pkg,dmg" }
-          - { platform: ios,              os: macos-26,       aarch: universal, filename: hiddify-ios, targets: ipa }
+        include: ${{ fromJSON(needs.test.outputs.platforms) }}
     runs-on: ${{ matrix.os }}
     steps:
       - name: checkout
         uses: actions/checkout@v6
+      - name: Apply release versions
+        if: ${{ inputs.core-version != '' || inputs.app-version != '' }}
+        env:
+          CORE_VERSION: ${{ inputs.core-version }}
+          APP_VERSION: ${{ inputs.app-version }}
+        run: python3 .github/scripts/apply_release_versions.py "$CORE_VERSION" "$APP_VERSION"
 
       # Explicit keychain password (not a repo secret): v6's auto-generated
       # keychain-password output is often empty in the next step, which makes
       # `security unlock-keychain` fail with "passphrase is not correct".
       - name: Import Apple Codesign Certificates
         id: apple-certs
-        if: ${{ inputs.upload-artifact && startsWith(matrix.os,'macos') }}
+        if: ${{ inputs.upload-artifact && inputs.publish-release && startsWith(matrix.os,'macos') }}
         uses: apple-actions/import-codesign-certs@v6
         with:
           p12-file-base64: ${{ secrets.APPLE_CERTIFICATE_P12 }}
@@ -112,7 +137,7 @@ jobs:
           keychain-password: hiddify-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Import Apple Mobile Provisioning Profile
-        if: ${{ inputs.upload-artifact && startsWith(matrix.os,'macos') }}
+        if: ${{ inputs.upload-artifact && inputs.publish-release && startsWith(matrix.os,'macos') }}
         env:
           KEYCHAIN_PASSWORD: hiddify-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
@@ -155,7 +180,7 @@ jobs:
         if: matrix.platform == 'macos'
         env:
           MACOS_SIGNING_XCCONFIG: ${{ secrets.APPLE_MACOS_SIGNING_XCCONFIG }}
-          SIGN_RELEASE: ${{ inputs.upload-artifact }}
+          SIGN_RELEASE: ${{ inputs.upload-artifact && inputs.publish-release }}
         shell: bash
         run: |
           set -euo pipefail
@@ -240,7 +265,7 @@ jobs:
           echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
 
       - name: Setup Android Signing Properties
-        if: ${{ inputs.upload-artifact && startsWith(matrix.platform,'android') }}
+        if: ${{ inputs.upload-artifact && inputs.publish-release && startsWith(matrix.platform,'android') }}
         run: |
           echo "${{ secrets.ANDROID_SIGNING_KEY }}" | base64 --decode > android/key.jks
           echo "storeFile=$(pwd)/android/key.jks" > android/key.properties
@@ -253,7 +278,7 @@ jobs:
       # docs/windows-code-signing.md for the secrets and the backend choice
       # (Azure Artifact Signing preferred, CA-issued PFX as fallback).
       - name: Configure Windows code signing
-        if: ${{ inputs.upload-artifact && startsWith(matrix.platform,'windows') }}
+        if: ${{ inputs.upload-artifact && inputs.publish-release && startsWith(matrix.platform,'windows') }}
         shell: pwsh
         env:
           AZURE_SIGNING_ENDPOINT: ${{ secrets.AZURE_SIGNING_ENDPOINT }}
@@ -322,7 +347,7 @@ jobs:
         run: make windows-validate
 
       - name: Code Sign Windows Release tree
-        if: matrix.platform == 'windows' && inputs.upload-artifact
+        if: matrix.platform == 'windows' && inputs.upload-artifact && inputs.publish-release
         env:
           WINDOWS_SIGNING_PASSWORD: ${{ secrets.WINDOWS_SIGNING_PASSWORD }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -333,7 +358,7 @@ jobs:
           & .\windows\scripts\sign_windows_artifacts.ps1 -Path build\windows\x64\runner\Release
 
       - name: Package Windows Setup and MSIX
-        if: matrix.platform == 'windows' && inputs.upload-artifact
+        if: matrix.platform == 'windows' && inputs.upload-artifact && inputs.publish-release
         # fastforge runs `flutter build windows` again before packing, which re-copies
         # unsigned plugin DLLs; the Makefile passes a fastforge pre-package hook
         # (WINDOWS_PACKAGE_HOOK) that signs the Release tree right before Inno/MSIX
@@ -377,7 +402,7 @@ jobs:
         run: make windows-validate
 
       - name: Code Sign Windows packages
-        if: ${{ inputs.upload-artifact && startsWith(matrix.platform,'windows') }}
+        if: ${{ inputs.upload-artifact && inputs.publish-release && startsWith(matrix.platform,'windows') }}
         # Signs Setup.exe / MSIX and PE files inside the portable .zip.
         # Skips files that already verify as signed (MSVC runtimes; pre-signed Release PE).
         env:
@@ -395,7 +420,11 @@ jobs:
         run: |
           Get-ChildItem -Path dist -Recurse | Select-Object FullName
           New-Item -ItemType Directory -Path "out" -Force | Out-Null
-          $targets = "${{ matrix.targets }}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+          if ('${{ inputs.publish-release }}' -eq 'true') {
+            $targets = "${{ matrix.targets }}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+          } else {
+            $targets = @('zip')
+          }
           Write-Host "Windows copy targets: $($targets -join ', ')"
           foreach ($ext in $targets) {
             $key = "TARGET_NAME_$ext"
@@ -432,7 +461,7 @@ jobs:
           subject-path: out/*
 
       - name: Upload Debug Symbols
-        if: ${{ inputs.upload-artifact && inputs.tag-name != 'draft' }}
+        if: ${{ inputs.upload-artifact && inputs.publish-release && inputs.tag-name != 'draft' }}
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
@@ -543,9 +572,9 @@ jobs:
         if: env.UPLOAD_ARTIFACT == 'true'
         uses: actions/upload-artifact@v6
         with:
-          name: ${{matrix.platform}}
+          name: ${{matrix.platform}}${{ env.ARTIFACT_SUFFIX }}
           path: ./out
-          retention-days: 1
+          retention-days: ${{ inputs.artifact-retention-days }}
 
       # Profiles only — leave signing_temp.keychain for import-codesign-certs post cleanup.
       - name: Clean up provisioning profiles
@@ -557,7 +586,7 @@ jobs:
     # Always refresh the moving `draft` tag/release to this build's commit and assets.
     # On versioned tags this runs after upload-release so the two softprops jobs
     # never create releases / upload assets with the same token concurrently.
-    if: ${{ !cancelled() && inputs.upload-artifact && needs.build.result == 'success' && (needs.upload-release.result == 'success' || needs.upload-release.result == 'skipped') }}
+    if: ${{ !cancelled() && inputs.upload-artifact && inputs.publish-release && needs.build.result == 'success' && (needs.upload-release.result == 'success' || needs.upload-release.result == 'skipped') }}
     needs: [build, upload-release]
     runs-on: ubuntu-latest
     permissions:
@@ -615,7 +644,7 @@ jobs:
           fail_on_unmatched_files: false
 
   virustotal-draft:
-    if: ${{ inputs.upload-artifact }}
+    if: ${{ inputs.upload-artifact && inputs.publish-release }}
     needs: [update-draft]
     uses: ./.github/workflows/virustotal_scan.yml
     secrets: inherit
@@ -625,7 +654,7 @@ jobs:
       release_tag: draft
 
   upload-release:
-    if: ${{ inputs.upload-artifact && inputs.tag-name != 'draft' }}
+    if: ${{ inputs.upload-artifact && inputs.publish-release && inputs.tag-name != 'draft' }}
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -682,7 +711,7 @@ jobs:
           track: 'beta'
 
   virustotal-release:
-    if: ${{ inputs.upload-artifact && inputs.tag-name != 'draft' }}
+    if: ${{ inputs.upload-artifact && inputs.publish-release && inputs.tag-name != 'draft' }}
     needs: [upload-release]
     uses: ./.github/workflows/virustotal_scan.yml
     secrets: inherit
@@ -703,7 +732,7 @@ jobs:
     permissions:
       actions: read
       contents: read
-    if: ${{ inputs.upload-artifact }}
+    if: ${{ inputs.upload-artifact && inputs.publish-release }}
     runs-on: macos-26
     timeout-minutes: 60
     env:

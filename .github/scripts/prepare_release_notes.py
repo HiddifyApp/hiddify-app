@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import random
 import re
 import sys
@@ -57,7 +58,7 @@ NO_VT_SCAN = {"Hiddify-iOS.ipa"}
 ASSET_MARKER = "<!-- ASSET_LINKS -->"
 TABLE_BEGIN = "<!-- ASSETS:BEGIN -->"
 TABLE_END = "<!-- ASSETS:END -->"
-REPO = "hiddify/hiddify-app"
+REPO = os.environ.get("GITHUB_REPOSITORY", "HiddifyApp/hiddify-app")
 
 
 def sha256_file(path: Path) -> str:
