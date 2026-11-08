@@ -128,6 +128,7 @@ jobs:
           CORE_VERSION: ${{ needs.check.outputs.core-version }}
         run: |
           set -euo pipefail
+          python3 .github/scripts/make_ios_source.py ./out "$APP_VERSION"
           cp .github/release_message.md release.md
           python3 .github/scripts/prepare_release_notes.py release.md ./out "v${APP_VERSION}"
           printf '\n<!-- hiddify-core-version: %s -->\n' "$CORE_VERSION" >> release.md
