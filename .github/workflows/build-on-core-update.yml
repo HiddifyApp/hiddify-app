@@ -1,4 +1,4 @@
-name: Build on core update
+name: Sync upstream and build personal release
 
 on:
   schedule:
@@ -15,6 +15,10 @@ permissions:
   actions: write
   contents: write
 
+concurrency:
+  group: personal-release-${{ github.repository }}
+  cancel-in-progress: false
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -22,14 +26,34 @@ jobs:
       should-build: ${{ steps.check.outputs.should-build }}
       core-version: ${{ steps.check.outputs.core-version }}
       app-version: ${{ steps.check.outputs.app-version }}
+      source-ref: ${{ steps.check.outputs.source-ref }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FORCE_BUILD: ${{ inputs.release-current }}
         run: |
           set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/hiddify/hiddify-app.git
+          git fetch upstream main
+          upstream_updated=false
+          if ! git merge-base --is-ancestor upstream/main HEAD; then
+            echo "Merging upstream app commit $(git rev-parse --short upstream/main)."
+            if ! git merge --no-edit upstream/main; then
+              git merge --abort || true
+              echo "Upstream merge conflicts with the personal fork. Resolve them on main; no files were overwritten." >&2
+              exit 1
+            fi
+            git push origin HEAD:main
+            upstream_updated=true
+          fi
+          source_ref="$(git rev-parse HEAD)"
+
           core_tag="$(gh api repos/hiddify/hiddify-core/releases/latest --jq .tag_name)"
           core_version="${core_tag#v}"
           if [[ ! "$core_version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
@@ -40,35 +64,23 @@ jobs:
           last_built_core="$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" --paginate --jq '.[].body // ""' | grep -oE '<!-- hiddify-core-version: [0-9]+\.[0-9]+\.[0-9]+ -->' | sed -E 's/.*: ([0-9]+\.[0-9]+\.[0-9]+) .*/\1/' | sort -V | tail -n 1 || true)"
           baseline="${last_built_core:-$(sed -n 's/^core\.version=//p' dependencies.properties | head -n 1)}"
           newest="$(printf '%s\n%s\n' "$core_version" "$baseline" | sort -V | tail -n 1)"
-          if [[ "$FORCE_BUILD" != 'true' && ( "$newest" != "$core_version" || "$core_version" == "$baseline" ) ]]; then
-            echo "No newer hiddify-core release (latest=$core_version, built=$baseline)."
+          core_updated=false
+          if [[ "$newest" == "$core_version" && "$core_version" != "$baseline" ]]; then
+            core_updated=true
+          fi
+          if [[ "$FORCE_BUILD" != 'true' && "$upstream_updated" != 'true' && "$core_updated" != 'true' ]]; then
+            echo "No upstream app or hiddify-core update (app=$source_ref, core=$core_version)."
             echo 'should-build=false' >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           current_app_version="$(sed -n 's/^version: *\([0-9][0-9.]*\)+.*/\1/p' pubspec.yaml | head -n 1)"
-          if [[ "$(printf '%s\n%s\n' "$core_version" "$current_app_version" | sort -V | tail -n 1)" == "$core_version" ]]; then
-            app_version="$core_version"
-          else
-            IFS=. read -r app_major app_minor app_patch <<< "$current_app_version"
-            if (( app_patch < 99 )); then
-              app_patch=$((app_patch + 1))
-            elif (( app_minor < 99 )); then
-              app_minor=$((app_minor + 1))
-              app_patch=0
-            elif (( app_major < 99 )); then
-              app_major=$((app_major + 1))
-              app_minor=0
-              app_patch=0
-            else
-              echo 'App version cannot be incremented within the build-number range' >&2
-              exit 1
-            fi
-            app_version="${app_major}.${app_minor}.${app_patch}"
-          fi
-          echo "New core release $core_version; building app version $app_version."
+          latest_app_version="$(gh release list --repo "$GITHUB_REPOSITORY" --limit 100 --json tagName,isDraft,isPrerelease --jq '.[] | select(.isDraft == false and .isPrerelease == false) | .tagName | ltrimstr("v")' | sort -V | tail -n 1)"
+          app_version="$(python3 .github/scripts/next_release_version.py "$current_app_version" "$core_version" "$latest_app_version")"
+          echo "Building app $app_version from $source_ref with hiddify-core $core_version (upstream app update: $upstream_updated)."
           echo "core-version=$core_version" >> "$GITHUB_OUTPUT"
           echo "app-version=$app_version" >> "$GITHUB_OUTPUT"
+          echo "source-ref=$source_ref" >> "$GITHUB_OUTPUT"
           echo 'should-build=true' >> "$GITHUB_OUTPUT"
 
   build:
@@ -87,6 +99,7 @@ jobs:
       channel: prod
       core-version: ${{ needs.check.outputs.core-version }}
       app-version: ${{ needs.check.outputs.app-version }}
+      source-ref: ${{ needs.check.outputs.source-ref }}
       publish-release: false
       artifact-retention-days: 30
 
@@ -100,6 +113,8 @@ jobs:
     steps:
       - name: Checkout release template
         uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.check.outputs.source-ref }}
       - name: Download platform builds
         uses: actions/download-artifact@v7
         with:
