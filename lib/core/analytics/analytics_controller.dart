@@ -1,8 +1,5 @@
-import 'package:flutter/foundation.dart';
-import 'package:hiddify/core/analytics/analytics_filter.dart';
 import 'package:hiddify/core/logger/sinks/sentry_sink.dart';
 
-import 'package:hiddify/core/model/environment.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -13,8 +10,6 @@ part 'analytics_controller.g.dart';
 
 const String enableAnalyticsPrefKey = "enable_analytics";
 
-bool _testCrashReport = false;
-
 bool readAnalyticsEnabled(SharedPreferences preferences) {
   return preferences.getBool(enableAnalyticsPrefKey) ?? false;
 }
@@ -23,44 +18,15 @@ bool readAnalyticsEnabled(SharedPreferences preferences) {
 class AnalyticsController extends _$AnalyticsController with AppLogger {
   @override
   Future<bool> build() async {
-    return readAnalyticsEnabled(_preferences);
+    // Analytics are removed from this build; an old "on" from before is turned off.
+    if (readAnalyticsEnabled(_preferences)) await _preferences.setBool(enableAnalyticsPrefKey, false);
+    return false;
   }
 
   SharedPreferences get _preferences => ref.read(sharedPreferencesProvider).requireValue;
 
-  Future<void> enableAnalytics() async {
-    if (state case AsyncData(value: final enabled)) {
-      loggy.debug("enabling analytics");
-      state = const AsyncLoading();
-      if (!enabled) {
-        await _preferences.setBool(enableAnalyticsPrefKey, true);
-      }
-
-      // final env = ref.read(environmentProvider);
-      // final appInfo = await ref.read(appInfoProvider.future);
-      final dsn = !kDebugMode || _testCrashReport ? Environment.sentryDSN : "";
-      logEnableSentry();
-
-      await SentryFlutter.init((options) {
-        options.dsn = dsn;
-        // options.environment = env.name;
-        // options.dist = appInfo.release.name;
-        options.debug = kDebugMode;
-        options.enableNativeCrashHandling = true;
-        options.enableNdkScopeSync = true;
-        // options.autoAppStart = false;
-        // options.attachScreenshot = true;
-        options.serverName = "";
-        options.attachThreads = true;
-        options.tracesSampleRate = 0.20;
-        options.enableUserInteractionTracing = true;
-        options.addIntegration(SentryLogIntegration());
-        options.beforeSend = sentryBeforeSend;
-      });
-
-      state = const AsyncData(true);
-    }
-  }
+  /// Analytics are removed from this build: nothing is ever sent, so this only makes sure they stay off.
+  Future<void> enableAnalytics() => disableAnalytics();
 
   Future<void> disableAnalytics() async {
     if (state case AsyncData()) {

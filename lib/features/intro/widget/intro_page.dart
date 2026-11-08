@@ -109,7 +109,6 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                       await ref.read(ConfigOptions.directDnsAddress.notifier).reset();
                     },
                   ),
-                  const EnableAnalyticsPrefTile(),
                   const Gap(24),
                   Focus(
                     focusNode: focusNodes[IntroConst.termsAndConditionsKey],
