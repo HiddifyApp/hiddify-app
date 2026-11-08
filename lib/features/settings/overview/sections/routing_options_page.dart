@@ -171,8 +171,7 @@ class _RegionFlag extends StatelessWidget {
       );
     }
     return CircleFlag(
-      // the lion and sun, as for the IP's country
-      region == Region.ir ? 'ir-shir' : region.name,
+      region.name,
       size: size,
       shape: RoundedRectangleBorder(borderRadius: borderRadius),
     );

@@ -127,7 +127,7 @@ class IPCountryFlag extends HookConsumerWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(radius),
                       child: CircleFlag(
-                        countryCode!.toLowerCase() == "ir" ? "ir-shir" : countryCode!,
+                        countryCode!,
                         size: size - 8,
                         shape: null,
                       ),
