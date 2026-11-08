@@ -48,8 +48,9 @@ Pick your platform to download the recommended build. Use **All files** below fo
   <summary>မြန်မာ</summary>
 
 - **Android:** APK ကို ဒေါင်းလုဒ်လုပ်ပြီး ဖွင့်ပါ။ တောင်းဆိုလာပါက ထည့်သွင်းခွင့်ပြုပါ။
-- **Windows:** Portable ZIP ကို ဒေါင်းလုဒ်လုပ်၊ ဖြည်ပြီး `Hiddify.exe` ကို ဖွင့်ပါ။ ဤဖိုင်တွင် လက်မှတ်မပါသဖြင့် Windows က သတိပေးနိုင်သည်။
+- **Windows (10/11):** **Setup** ကို ဒေါင်းလုဒ်လုပ်ပြီး ထည့်သွင်းပါ။ ထို့နောက် အက်ပ်သည် သူ့ဘာသာ update လုပ်ပါမည်။ သို့မဟုတ် Portable ZIP ကို ဖြည်ပြီး `Hiddify.exe` ကို ဖွင့်ပါ။ ဤဖိုင်များတွင် လက်မှတ်မပါသဖြင့် Windows က သတိပေးနိုင်သည်။
 - **macOS:** DMG ကိုဖွင့်ပြီး Hiddify ကို Applications ထဲသို့ ရွှေ့ပါ။
+- **iPhone (TrollStore / jailbreak):** TrollStore တွင် **+ → Install from URL** ကိုနှိပ်ပြီး ဤလင့်ခ်ကို ထည့်ပါ: `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/Hiddify-iOS-Jailbreak.ipa`
 - **Linux:** AppImage ကို executable လုပ်ပြီး ဖွင့်ပါ။ Debian အသုံးပြုသူများ DEB ကို ထည့်သွင်းနိုင်သည်။
 - **ချိတ်ဆက်ရန်:** အက်ပ်ထဲတွင် subscription ထည့်ပြီး **Connect** ကိုနှိပ်ပါ။
 </details>
@@ -58,8 +59,9 @@ Pick your platform to download the recommended build. Use **All files** below fo
   <summary>简体中文</summary>
 
 - **Android：**下载 APK 并打开；如果出现提示，请允许安装。
-- **Windows：**下载 Portable 压缩包，解压后运行 `Hiddify.exe`。此版本未签名，Windows 可能显示安全提示。
+- **Windows（10/11）：**下载 **Setup** 安装程序并运行，之后应用会自动更新；也可下载 Portable 压缩包，解压后运行 `Hiddify.exe`。这些文件未签名，Windows 可能显示安全提示。
 - **macOS：**打开 DMG，并将 Hiddify 拖到 Applications 文件夹。
+- **iPhone（TrollStore 或越狱）：**在 TrollStore 中点击 **+ → Install from URL**，粘贴 `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/Hiddify-iOS-Jailbreak.ipa`。
 - **Linux：**为 AppImage 添加可执行权限后运行；Debian 用户也可安装 DEB 包。
 - **连接：**在应用中添加订阅，然后点击**连接**。
 </details>
@@ -68,8 +70,9 @@ Pick your platform to download the recommended build. Use **All files** below fo
   <summary>Türkmençe</summary>
 
 - **Android:** APK faýlyny ýükläp açyň. Soralsa, gurnamaga rugsat beriň.
-- **Windows:** Portable ZIP faýlyny ýükläp, çykaryň we `Hiddify.exe` faýlyny işlediň. Faýla gol çekilmedik, şonuň üçin Windows duýduryş görkezip biler.
+- **Windows (10/11):** **Setup** faýlyny ýükläp işlediň we gurnaň; soňra programma özi täzelenýär. Ýa-da Portable ZIP faýlyny çykaryp, `Hiddify.exe` faýlyny işlediň. Faýllara gol çekilmedik, şonuň üçin Windows duýduryş görkezip biler.
 - **macOS:** DMG faýlyny açyň we Hiddify-i Applications bukjasyna geçiriň.
+- **iPhone (TrollStore ýa-da jailbreak):** TrollStore-da **+ → Install from URL** basyň we şu salgyny goýuň: `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/Hiddify-iOS-Jailbreak.ipa`
 - **Linux:** AppImage faýlyna işletmek rugsadyny beriň we işlediň. Debian ulanyjylary DEB paketini gurnap bilerler.
 - **Birikmek:** Abunalygy programma goşuň we **Connect** düwmesine basyň.
 </details>
