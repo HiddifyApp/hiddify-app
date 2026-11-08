@@ -28,7 +28,7 @@ Pick your platform to download the recommended build. Use **All files** below fo
 - **Android:** Download the universal APK, open it, and allow installation if prompted.
 - **Windows (10/11, x64 and ARM):** Download **Setup**, run it and follow the installer; the app then updates itself. Or use Portable: extract the ZIP and run `Hiddify.exe`. These builds are unsigned; if Windows shows a SmartScreen warning, choose **More info → Run anyway**.
 - **macOS:** Open the DMG and drag Hiddify to Applications.
-- **Jailbroken iPhone:** Install `Hiddify-iOS-Jailbreak.ipa` with TrollStore or Filza/AppSync.
+- **iPhone (TrollStore or jailbreak):** In TrollStore tap **+ → Install from URL** and paste `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/Hiddify-iOS-Jailbreak.ipa`. On a jailbroken iPhone you can also install the IPA with Filza/AppSync. Without TrollStore or a jailbreak, iOS only installs VPN apps signed by Apple.
 - **Linux:** Make the AppImage executable and run it. Debian users can install the DEB package.
 - **Connect:** Add your subscription in the app and tap **Connect**.
 </details>
@@ -38,7 +38,7 @@ Pick your platform to download the recommended build. Use **All files** below fo
 
 - **اندروید:** APK را دانلود و باز کنید؛ اگر خواسته شد، نصب را مجاز کنید.
 - **ویندوز (۱۰ و ۱۱، x64 و ARM):** فایل **Setup** را دانلود و اجرا کنید تا برنامه نصب شود؛ از آن به بعد برنامه خودش به‌روز می‌شود. یا نسخه Portable را از حالت فشرده خارج و `Hiddify.exe` را اجرا کنید. این فایل‌ها امضای ناشر ندارند؛ اگر ویندوز هشدار SmartScreen داد، روی **More info ← Run anyway** بزنید.
-- **آیفون جیلبریک‌شده:** فایل `Hiddify-iOS-Jailbreak.ipa` را با TrollStore یا Filza/AppSync نصب کنید.
+- **آیفون (TrollStore یا جیلبریک):** در TrollStore روی **+ ← Install from URL** بزنید و این لینک را وارد کنید: `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/Hiddify-iOS-Jailbreak.ipa` — روی آیفون جیلبریک‌شده با Filza/AppSync هم نصب می‌شود. بدون TrollStore یا جیلبریک، iOS فقط اپ‌های VPN امضاشده توسط اپل را نصب می‌کند.
 - **مک:** DMG را باز کنید و Hiddify را به Applications منتقل کنید.
 - **لینوکس:** AppImage را اجرایی کنید و باز کنید؛ کاربران Debian می‌توانند بسته‌ی DEB را نصب کنند.
 - **اتصال:** اشتراک را در برنامه اضافه کنید و **اتصال** را بزنید.
