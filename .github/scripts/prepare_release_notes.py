@@ -44,12 +44,12 @@ ASSET_CATALOG: list[tuple[str, str, str]] = [
     ("macOS (v10.15+)", "Hiddify-MacOS-Installer.pkg", "PKG Universal"),
     ("macOS (v10.15+)", "Hiddify-MacOS-AppStore.dmg", "App Store DMG Universal"),
     ("macOS (v10.15+)", "Hiddify-MacOS-AppStore.pkg", "App Store PKG Universal"),
-    ("iOS", "Hiddify-iOS.ipa", "IPA iOS"),
-    ("iOS", "Hiddify-iOS-Jailbreak.ipa", "IPA Jailbreak / TrollStore"),
     ("Linux", "Hiddify-Linux-x64-AppImage.AppImage", "AppImage x64"),
     ("Linux", "Hiddify-Linux-x64-AppImage.tar.gz", "AppImage x64 (tar.gz)"),
     ("Linux", "Hiddify-Debian-x64.deb", "DebPackage x64"),
     ("Linux", "Hiddify-rpm-x64.rpm", "RpmPackage x64"),
+    ("iOS", "Hiddify-iOS.ipa", "IPA iOS"),
+    ("iOS", "Hiddify-iOS-Jailbreak.ipa", "IPA Jailbreak / TrollStore"),
 ]
 
 # Not sent to VirusTotal: it rejects the IPA upload (HTTP 409), and an iOS app cannot
@@ -63,7 +63,8 @@ TABLE_END = "<!-- ASSETS:END -->"
 REPO = os.environ.get("GITHUB_REPOSITORY", "HiddifyApp/hiddify-app")
 PLATFORM_ICONS = {
     "Android": "https://cdn.simpleicons.org/android/3DDC84",
-    "Windows": "https://cdn.simpleicons.org/windows/0078D4",
+    # Simple Icons no longer has the Windows logo
+    "Windows": f"https://raw.githubusercontent.com/{REPO}/main/.github/icons/windows.svg",
     "macOS (v10.15+)": "https://cdn.simpleicons.org/apple/111111",
     "iOS": "https://cdn.simpleicons.org/apple/111111",
     "Linux": "https://cdn.simpleicons.org/linux/FCC624",
@@ -72,8 +73,8 @@ QUICK_DOWNLOADS = [
     ("Android", ("Hiddify-Android-universal.apk", "Hiddify-Android-arm64.apk")),
     ("Windows", ("Hiddify-Windows-Setup-x64.exe", "Hiddify-Windows-Portable-x64.zip")),
     ("macOS (v10.15+)", ("Hiddify-MacOS.dmg", "Hiddify-MacOS-Installer.pkg")),
-    ("iOS", ("Hiddify-iOS.ipa", "Hiddify-iOS-Jailbreak.ipa")),
     ("Linux", ("Hiddify-Linux-x64-AppImage.AppImage", "Hiddify-Debian-x64.deb")),
+    ("iOS", ("Hiddify-iOS.ipa", "Hiddify-iOS-Jailbreak.ipa")),
 ]
 
 

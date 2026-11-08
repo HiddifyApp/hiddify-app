@@ -1,18 +1,13 @@
-<div align="center">
-  <img src="https://raw.githubusercontent.com/HiddifyApp/hiddify-app/main/assets/images/logo.svg" alt="Hiddify" width="72" />
-  <h1>Hiddify</h1>
-  <p>Fast, secure access to the open internet</p>
-  <p>
-    <a href="https://hiddify.org">Website</a> ·
-    <a href="https://hiddify.org/help">Help</a> ·
-    <a href="https://t.me/HiddifyConfig">Telegram</a> ·
-    <a href="https://github.com/HiddifyApp/hiddify-app">Source code</a>
-  </p>
-</div>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/HiddifyApp/hiddify-app/main/assets/images/logo.svg" alt="Hiddify" width="40" /><br>
+  <b>Fast, secure access to the open internet</b><br>
+  <a href="https://hiddify.org">Website</a> ·
+  <a href="https://hiddify.org/help">Help</a> ·
+  <a href="https://t.me/HiddifyConfig">Telegram</a> ·
+  <a href="https://github.com/HiddifyApp/hiddify-app">Source code</a>
+</p>
 
 ## Quick downloads
-
-Pick your platform to download the recommended build. Use **All files** below for other variants.
 
 <!-- QUICK_DOWNLOADS -->
 
