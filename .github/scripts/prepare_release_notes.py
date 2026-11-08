@@ -56,9 +56,23 @@ ASSET_CATALOG: list[tuple[str, str, str]] = [
 NO_VT_SCAN = {"Hiddify-iOS.ipa"}
 
 ASSET_MARKER = "<!-- ASSET_LINKS -->"
+QUICK_ASSET_MARKER = "<!-- QUICK_DOWNLOADS -->"
 TABLE_BEGIN = "<!-- ASSETS:BEGIN -->"
 TABLE_END = "<!-- ASSETS:END -->"
 REPO = os.environ.get("GITHUB_REPOSITORY", "HiddifyApp/hiddify-app")
+PLATFORM_ICONS = {
+    "Android": "https://cdn.simpleicons.org/android/3DDC84",
+    "Windows": "https://cdn.simpleicons.org/windows/0078D4",
+    "macOS (v10.15+)": "https://cdn.simpleicons.org/apple/111111",
+    "iOS": "https://cdn.simpleicons.org/apple/111111",
+    "Linux": "https://cdn.simpleicons.org/linux/FCC624",
+}
+QUICK_DOWNLOADS = [
+    ("Android", ("Hiddify-Android-universal.apk", "Hiddify-Android-arm64.apk")),
+    ("Windows", ("Hiddify-Windows-Portable-x64.zip", "Hiddify-Windows-Setup-x64.exe")),
+    ("macOS (v10.15+)", ("Hiddify-MacOS.dmg", "Hiddify-MacOS-Installer.pkg")),
+    ("Linux", ("Hiddify-Linux-x64-AppImage.AppImage", "Hiddify-Debian-x64.deb")),
+]
 
 
 def sha256_file(path: Path) -> str:
@@ -169,10 +183,11 @@ def render_links(tag: str, assets: dict[str, "Path | str"], bust: str, old_body:
         os_emitted[os_name] = os_emitted.get(os_name, 0) + 1
         if first:
             span = rowspan_pending[os_name]
+            icon = f'<img src="{PLATFORM_ICONS[os_name]}" alt="" width="20" height="20" /> '
             if span > 1:
-                cells.append(f'<td rowspan="{span}">{os_name}</td>')
+                cells.append(f'<td rowspan="{span}">{icon}{os_name}</td>')
             else:
-                cells.append(f"<td>{os_name}</td>")
+                cells.append(f"<td>{icon}{os_name}</td>")
         cells.append(f"<td>{download}</td>")
         cells.append(f"<td>{downloads}</td>")
         cells.append(f"<td>{vt}</td>")
@@ -192,6 +207,30 @@ def render_links(tag: str, assets: dict[str, "Path | str"], bust: str, old_body:
             "",
         ]
     )
+
+
+def render_quick_downloads(tag: str, assets: dict[str, "Path | str"], bust: str) -> str:
+    cards: list[str] = []
+    for platform, preferred_files in QUICK_DOWNLOADS:
+        filename = next((name for name in preferred_files if find_asset(assets, name) is not None), None)
+        if filename is None:
+            continue
+        url = f"https://github.com/{REPO}/releases/download/{tag}/{filename}"
+        icon = PLATFORM_ICONS[platform]
+        badge = downloads_badge_img(tag, filename, bust)
+        display_name = "macOS" if platform.startswith("macOS") else platform
+        cards.append(
+            "<td align=\"center\">"
+            f'<a href="{url}"><img src="{icon}" alt="{display_name}" width="36" height="36" /></a><br>'
+            f"<strong>{display_name}</strong><br>"
+            f'<a href="{url}">Download</a><br>'
+            f'<a href="{url}">{badge}</a>'
+            "</td>"
+        )
+
+    if not cards:
+        return "_No platform builds are attached to this release._\n"
+    return "<table><tbody><tr>\n" + "\n".join(cards) + "\n</tr></tbody></table>\n"
 
 
 def wrap_table(links: str) -> str:
@@ -231,8 +270,16 @@ def main() -> int:
             tag = json.loads(release_json.read_text())["tag_name"]
         assets = assets_from_release_json(release_json)
         body = notes_path.read_text()
-        links = render_links(tag, assets, cache_bust(), old_body=body)
-        notes_path.write_text(replace_table(body, links).strip() + "\n")
+        bust = cache_bust()
+        links = render_links(tag, assets, bust, old_body=body)
+        quick_downloads = render_quick_downloads(tag, assets, bust)
+        if QUICK_ASSET_MARKER in body:
+            body = body.replace(QUICK_ASSET_MARKER, quick_downloads)
+        if ASSET_MARKER in body:
+            body = body.replace(ASSET_MARKER, wrap_table(links))
+        else:
+            body = replace_table(body, links)
+        notes_path.write_text(body.strip() + "\n")
         present = sum(1 for _, name, _ in ASSET_CATALOG if find_asset(assets, name))
         print(f"rewrote download table with {present} rows for tag {tag}")
         return 0
@@ -271,9 +318,12 @@ def main() -> int:
     text = notes_path.read_text()
     text = text.replace("RELEASE_TAG", tag)
     links = render_links(tag, assets, bust)
+    quick_downloads = render_quick_downloads(tag, assets, bust)
     # Strip the template's own comments first; the ASSETS markers are added after
     # and stay in the body so the table can be rewritten later.
-    text = re.sub(r"<!--(?!.*?ASSET_LINKS).*?-->\n?", "", text, flags=re.DOTALL)
+    text = re.sub(r"<!--(?!\s*(?:ASSET_LINKS|QUICK_DOWNLOADS)\s*-->).*?-->\n?", "", text, flags=re.DOTALL)
+    if QUICK_ASSET_MARKER in text:
+        text = text.replace(QUICK_ASSET_MARKER, quick_downloads)
     if ASSET_MARKER in text:
         text = text.replace(ASSET_MARKER, wrap_table(links))
     else:
