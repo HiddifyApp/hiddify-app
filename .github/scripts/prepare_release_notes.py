@@ -156,53 +156,30 @@ def apply_vt_results(body: str, results: dict[str, dict | None]) -> str:
 
 
 def render_links(tag: str, assets: dict[str, "Path | str"], bust: str, old_body: str = "") -> str:
-    """assets maps file name -> local Path (hashed here) or a known sha256 hex string.
-
-    old_body: a published body whose VirusTotal badges are kept for unchanged files."""
-    rowspan_pending: dict[str, int] = {}
-    for os_name, filename, _ in ASSET_CATALOG:
+    """One row per platform with all its files, so the whole table stays above the "Read more"
+    cut of GitHub's releases list. assets maps file name -> local Path or sha256 hex string;
+    old_body is accepted for the callers' sake."""
+    files: dict[str, list[str]] = {}
+    for os_name, filename, label in ASSET_CATALOG:
         if find_asset(assets, filename) is None:
             continue
-        rowspan_pending[os_name] = rowspan_pending.get(os_name, 0) + 1
-
-    rows: list[str] = []
-    os_emitted: dict[str, int] = {}
-    for os_name, filename, label in ASSET_CATALOG:
-        path = find_asset(assets, filename)
-        if path is None:
-            continue
-        digest = path if isinstance(path, str) else sha256_file(path)
-        print(f"{filename}: {digest}")
         url = f"https://github.com/{REPO}/releases/download/{tag}/{filename}"
-        download = f'<a href="{url}">{label}</a>'
-        downloads = f'<a href="{url}">{downloads_badge_img(tag, filename, bust)}</a>'
-        if filename in NO_VT_SCAN:
-            vt = "-"
-        else:
-            vt = vt_badge_img(digest, existing_vt_src(old_body, digest) or vt_badge_src(None))
+        files.setdefault(os_name, []).append(f'<a href="{url}">{label}</a>')
 
-        cells: list[str] = []
-        first = os_emitted.get(os_name, 0) == 0
-        os_emitted[os_name] = os_emitted.get(os_name, 0) + 1
-        if first:
-            span = rowspan_pending[os_name]
-            icon = f'<img src="{PLATFORM_ICONS[os_name]}" alt="" width="20" height="20" /> '
-            if span > 1:
-                cells.append(f'<td rowspan="{span}">{icon}{os_name}</td>')
-            else:
-                cells.append(f"<td>{icon}{os_name}</td>")
-        cells.append(f"<td>{download}</td>")
-        cells.append(f"<td>{downloads}</td>")
-        cells.append(f"<td>{vt}</td>")
-        rows.append("<tr>\n  " + "\n  ".join(cells) + "\n</tr>")
-
-    if not rows:
+    if not files:
         return "_No release assets found in the build output._\n"
 
+    rows = [
+        "<tr>\n"
+        f'  <td><img src="{PLATFORM_ICONS[os_name]}" alt="" width="20" height="20" /> {os_name}</td>\n'
+        f"  <td>{' · '.join(links)}</td>\n"
+        "</tr>"
+        for os_name, links in files.items()
+    ]
     return "\n".join(
         [
             "<table>",
-            "<thead><tr><th>OS</th><th>Download</th><th>Downloads</th><th>VirusTotal</th></tr></thead>",
+            "<thead><tr><th>OS</th><th>Download</th></tr></thead>",
             "<tbody>",
             *rows,
             "</tbody>",
