@@ -238,6 +238,7 @@
       "nonActiveProfileName": "Select “${name}” as active profile",
       "freeSubNotFound": "No free subscription found",
       "freeSubNotFoundForRegion": "No free subscription found for “${region}”",
+      "freeConfigsRemoved": "Free configs have been removed from the service because they leaked users’ data. This keeps you secure.",
       "failedToLoad": "Failed to load",
       "updateSubscriptions": "Update subscriptions",
       "share": {

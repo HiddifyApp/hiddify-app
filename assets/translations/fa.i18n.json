@@ -238,6 +238,7 @@
       "nonActiveProfileName": "انتخاب «${name}» به عنوان پروفایل فعال",
       "freeSubNotFound": "اشتراک رایگان یافت نشد",
       "freeSubNotFoundForRegion": "اشتراک رایگان برای منطقه «${region}» یافت نشد",
+      "freeConfigsRemoved": "کانفیگ‌های رایگان به دلیل نشت اطلاعات کاربران از سرویس حذف شده‌اند تا امنیت شما تضمین گردد.",
       "failedToLoad": "بارگذاری ناموفق بود",
       "updateSubscriptions": "به‌روزرسانی اشتراک‌ها",
       "share": {
