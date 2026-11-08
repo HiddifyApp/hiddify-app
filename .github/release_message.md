@@ -23,7 +23,11 @@
 - **Android:** Download the universal APK, open it, and allow installation if prompted.
 - **Windows (10/11, x64 and ARM):** Download **Setup**, run it and follow the installer; the app then updates itself. Or use Portable: extract the ZIP and run `Hiddify.exe`. These builds are unsigned; if Windows shows a SmartScreen warning, choose **More info → Run anyway**.
 - **macOS:** Open the DMG and drag Hiddify to Applications.
-- **iPhone (TrollStore or jailbreak):** In TrollStore tap **+ → Install from URL** and paste `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/Hiddify-iOS-Jailbreak.ipa`. On a jailbroken iPhone you can also install the IPA with Filza/AppSync. Using Feather, ESign, Scarlet, SideStore or AltStore? Add this source to get every update: `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/hiddify-ios-source.json` (the VPN only works if your signing certificate allows Network Extensions).
+- **iPhone:**
+  - *TrollStore (iOS 14.0–16.6.1, 16.7 RC, 17.0):* tap **+ → Install from URL** and paste `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/Hiddify-iOS-Jailbreak.ipa`. Permanent and free.
+  - *Jailbreak:* install the IPA with Filza / AppSync. Permanent and free.
+  - *ESign, Feather, Scarlet, SideStore, AltStore:* add the source `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/hiddify-ios-source.json` under **Sources → +** and install Hiddify from there. Lasts as long as your certificate, and the VPN connects only if it supports Network Extensions.
+  - *iOS 17.0.1 and newer (18, 26, 27) without the above:* install the free official [Hiddify from the App Store](https://apps.apple.com/us/app/hiddify-proxy-vpn/id6596777532).
 - **Linux:** Make the AppImage executable and run it. Debian users can install the DEB package.
 - **Connect:** Add your subscription in the app and tap **Connect**.
 </details>
@@ -33,7 +37,11 @@
 
 - **اندروید:** APK را دانلود و باز کنید؛ اگر خواسته شد، نصب را مجاز کنید.
 - **ویندوز (۱۰ و ۱۱، x64 و ARM):** فایل **Setup** را دانلود و اجرا کنید تا برنامه نصب شود؛ از آن به بعد برنامه خودش به‌روز می‌شود. یا نسخه Portable را از حالت فشرده خارج و `Hiddify.exe` را اجرا کنید. این فایل‌ها امضای ناشر ندارند؛ اگر ویندوز هشدار SmartScreen داد، روی **More info ← Run anyway** بزنید.
-- **آیفون (TrollStore یا جیلبریک):** در TrollStore روی **+ ← Install from URL** بزنید و این لینک را وارد کنید: `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/Hiddify-iOS-Jailbreak.ipa` — روی آیفون جیلبریک‌شده با Filza/AppSync هم نصب می‌شود. اگر از Feather، ESign، Scarlet، SideStore یا AltStore استفاده می‌کنید، این آدرس را به‌عنوان Source اضافه کنید تا همه آپدیت‌ها را بگیرید: `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/hiddify-ios-source.json` (VPN فقط وقتی کار می‌کند که گواهی امضای شما اجازه Network Extension داشته باشد).
+- **آیفون:**
+  - *TrollStore (iOS 14.0 تا 16.6.1، 16.7 RC و 17.0):* روی **+ ← Install from URL** بزنید و این لینک را وارد کنید: `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/Hiddify-iOS-Jailbreak.ipa` — دائمی و رایگان.
+  - *جیلبریک:* فایل IPA را با Filza / AppSync نصب کنید — دائمی و رایگان.
+  - *ESign، Feather، Scarlet، SideStore، AltStore:* در **Sources ← +** این آدرس را اضافه کنید: `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/hiddify-ios-source.json` و Hiddify را از همان‌جا نصب کنید. تا وقتی گواهی شما معتبر است کار می‌کند و VPN فقط با گواهی دارای Network Extension وصل می‌شود.
+  - *iOS 17.0.1 و جدیدتر (18، 26، 27) بدون موارد بالا:* [Hiddify رسمی را از App Store](https://apps.apple.com/us/app/hiddify-proxy-vpn/id6596777532) رایگان نصب کنید.
 - **مک:** DMG را باز کنید و Hiddify را به Applications منتقل کنید.
 - **لینوکس:** AppImage را اجرایی کنید و باز کنید؛ کاربران Debian می‌توانند بسته‌ی DEB را نصب کنند.
 - **اتصال:** اشتراک را در برنامه اضافه کنید و **اتصال** را بزنید.
@@ -45,7 +53,7 @@
 - **Android:** APK ကို ဒေါင်းလုဒ်လုပ်ပြီး ဖွင့်ပါ။ တောင်းဆိုလာပါက ထည့်သွင်းခွင့်ပြုပါ။
 - **Windows (10/11):** **Setup** ကို ဒေါင်းလုဒ်လုပ်ပြီး ထည့်သွင်းပါ။ ထို့နောက် အက်ပ်သည် သူ့ဘာသာ update လုပ်ပါမည်။ သို့မဟုတ် Portable ZIP ကို ဖြည်ပြီး `Hiddify.exe` ကို ဖွင့်ပါ။ ဤဖိုင်များတွင် လက်မှတ်မပါသဖြင့် Windows က သတိပေးနိုင်သည်။
 - **macOS:** DMG ကိုဖွင့်ပြီး Hiddify ကို Applications ထဲသို့ ရွှေ့ပါ။
-- **iPhone (TrollStore / jailbreak):** TrollStore တွင် **+ → Install from URL** ကိုနှိပ်ပြီး ဤလင့်ခ်ကို ထည့်ပါ: `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/Hiddify-iOS-Jailbreak.ipa`
+- **iPhone (TrollStore / jailbreak):** TrollStore တွင် **+ → Install from URL** ကိုနှိပ်ပြီး ဤလင့်ခ်ကို ထည့်ပါ: `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/Hiddify-iOS-Jailbreak.ipa` · iOS 17.0.1+: [App Store](https://apps.apple.com/us/app/hiddify-proxy-vpn/id6596777532)
 - **Linux:** AppImage ကို executable လုပ်ပြီး ဖွင့်ပါ။ Debian အသုံးပြုသူများ DEB ကို ထည့်သွင်းနိုင်သည်။
 - **ချိတ်ဆက်ရန်:** အက်ပ်ထဲတွင် subscription ထည့်ပြီး **Connect** ကိုနှိပ်ပါ။
 </details>
@@ -56,7 +64,7 @@
 - **Android：**下载 APK 并打开；如果出现提示，请允许安装。
 - **Windows（10/11）：**下载 **Setup** 安装程序并运行，之后应用会自动更新；也可下载 Portable 压缩包，解压后运行 `Hiddify.exe`。这些文件未签名，Windows 可能显示安全提示。
 - **macOS：**打开 DMG，并将 Hiddify 拖到 Applications 文件夹。
-- **iPhone（TrollStore 或越狱）：**在 TrollStore 中点击 **+ → Install from URL**，粘贴 `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/Hiddify-iOS-Jailbreak.ipa`。
+- **iPhone（TrollStore 或越狱）：**在 TrollStore 中点击 **+ → Install from URL**，粘贴 `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/Hiddify-iOS-Jailbreak.ipa`。 iOS 17.0.1 及以上：[App Store](https://apps.apple.com/us/app/hiddify-proxy-vpn/id6596777532)
 - **Linux：**为 AppImage 添加可执行权限后运行；Debian 用户也可安装 DEB 包。
 - **连接：**在应用中添加订阅，然后点击**连接**。
 </details>
@@ -67,7 +75,7 @@
 - **Android:** APK faýlyny ýükläp açyň. Soralsa, gurnamaga rugsat beriň.
 - **Windows (10/11):** **Setup** faýlyny ýükläp işlediň we gurnaň; soňra programma özi täzelenýär. Ýa-da Portable ZIP faýlyny çykaryp, `Hiddify.exe` faýlyny işlediň. Faýllara gol çekilmedik, şonuň üçin Windows duýduryş görkezip biler.
 - **macOS:** DMG faýlyny açyň we Hiddify-i Applications bukjasyna geçiriň.
-- **iPhone (TrollStore ýa-da jailbreak):** TrollStore-da **+ → Install from URL** basyň we şu salgyny goýuň: `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/Hiddify-iOS-Jailbreak.ipa`
+- **iPhone (TrollStore ýa-da jailbreak):** TrollStore-da **+ → Install from URL** basyň we şu salgyny goýuň: `https://github.com/HiddifyApp/hiddify-app/releases/latest/download/Hiddify-iOS-Jailbreak.ipa` · iOS 17.0.1+: [App Store](https://apps.apple.com/us/app/hiddify-proxy-vpn/id6596777532)
 - **Linux:** AppImage faýlyna işletmek rugsadyny beriň we işlediň. Debian ulanyjylary DEB paketini gurnap bilerler.
 - **Birikmek:** Abunalygy programma goşuň we **Connect** düwmesine basyň.
 </details>
