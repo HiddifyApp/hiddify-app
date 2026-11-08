@@ -11,8 +11,8 @@ abstract class Constants {
   static const githubReleasesApiUrl = "https://api.github.com/repos/HiddifyApp/hiddify-app/releases";
   static const githubLatestReleaseUrl = "https://github.com/HiddifyApp/hiddify-app/releases/latest";
   static const telegramChannelUrl = "https://t.me/HiddifyConfig";
-  static const privacyPolicyUrl = "https://hiddify.com/privacy-policy/";
-  static const termsAndConditionsUrl = "https://hiddify.com/terms/";
+  static const privacyPolicyUrl = "https://hiddify.org/privacy-policy/";
+  static const termsAndConditionsUrl = "https://hiddify.org/terms/";
   static const cfWarpPrivacyPolicy = "https://www.cloudflare.com/application/privacypolicy/";
   static const cfWarpTermsOfService = "https://www.cloudflare.com/application/terms/";
 }
