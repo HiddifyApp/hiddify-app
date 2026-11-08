@@ -45,6 +45,7 @@ ASSET_CATALOG: list[tuple[str, str, str]] = [
     ("macOS (v10.15+)", "Hiddify-MacOS-AppStore.dmg", "App Store DMG Universal"),
     ("macOS (v10.15+)", "Hiddify-MacOS-AppStore.pkg", "App Store PKG Universal"),
     ("iOS", "Hiddify-iOS.ipa", "IPA iOS"),
+    ("iOS", "Hiddify-iOS-Jailbreak.ipa", "IPA Jailbreak / TrollStore"),
     ("Linux", "Hiddify-Linux-x64-AppImage.AppImage", "AppImage x64"),
     ("Linux", "Hiddify-Linux-x64-AppImage.tar.gz", "AppImage x64 (tar.gz)"),
     ("Linux", "Hiddify-Debian-x64.deb", "DebPackage x64"),
@@ -53,7 +54,7 @@ ASSET_CATALOG: list[tuple[str, str, str]] = [
 
 # Not sent to VirusTotal: it rejects the IPA upload (HTTP 409), and an iOS app cannot
 # run outside the App Store or a sideloading tool anyway.
-NO_VT_SCAN = {"Hiddify-iOS.ipa"}
+NO_VT_SCAN = {"Hiddify-iOS.ipa", "Hiddify-iOS-Jailbreak.ipa"}
 
 ASSET_MARKER = "<!-- ASSET_LINKS -->"
 QUICK_ASSET_MARKER = "<!-- QUICK_DOWNLOADS -->"
@@ -69,8 +70,9 @@ PLATFORM_ICONS = {
 }
 QUICK_DOWNLOADS = [
     ("Android", ("Hiddify-Android-universal.apk", "Hiddify-Android-arm64.apk")),
-    ("Windows", ("Hiddify-Windows-Portable-x64.zip", "Hiddify-Windows-Setup-x64.exe")),
+    ("Windows", ("Hiddify-Windows-Setup-x64.exe", "Hiddify-Windows-Portable-x64.zip")),
     ("macOS (v10.15+)", ("Hiddify-MacOS.dmg", "Hiddify-MacOS-Installer.pkg")),
+    ("iOS", ("Hiddify-iOS.ipa", "Hiddify-iOS-Jailbreak.ipa")),
     ("Linux", ("Hiddify-Linux-x64-AppImage.AppImage", "Hiddify-Debian-x64.deb")),
 ]
 

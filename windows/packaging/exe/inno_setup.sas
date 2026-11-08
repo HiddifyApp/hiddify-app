@@ -16,8 +16,8 @@ SolidCompression=no
 SetupIconFile={{SETUP_ICON_FILE}}
 WizardStyle=modern
 PrivilegesRequired={{PRIVILEGES_REQUIRED}}
-ArchitecturesAllowed=x64
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
 ; Closes locked app binaries before file replace — prefer this over taskkill.exe heuristics.
 CloseApplications=force
 ; VERSIONINFO for Setup.exe and the embedded uninstaller. PE files without a

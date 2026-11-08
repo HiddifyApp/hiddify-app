@@ -101,6 +101,7 @@ jobs:
       app-version: ${{ needs.check.outputs.app-version }}
       source-ref: ${{ needs.check.outputs.source-ref }}
       publish-release: false
+      personal-release: true
       artifact-retention-days: 30
 
   publish-custom-release:

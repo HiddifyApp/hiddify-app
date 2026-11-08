@@ -26,8 +26,9 @@ Pick your platform to download the recommended build. Use **All files** below fo
   <summary>English</summary>
 
 - **Android:** Download the universal APK, open it, and allow installation if prompted.
-- **Windows:** Download Portable, extract the ZIP, then run `Hiddify.exe`. This build is unsigned; Windows may show a security warning.
+- **Windows (10/11, x64 and ARM):** Download **Setup**, run it and follow the installer; the app then updates itself. Or use Portable: extract the ZIP and run `Hiddify.exe`. These builds are unsigned; if Windows shows a SmartScreen warning, choose **More info → Run anyway**.
 - **macOS:** Open the DMG and drag Hiddify to Applications.
+- **Jailbroken iPhone:** Install `Hiddify-iOS-Jailbreak.ipa` with TrollStore or Filza/AppSync.
 - **Linux:** Make the AppImage executable and run it. Debian users can install the DEB package.
 - **Connect:** Add your subscription in the app and tap **Connect**.
 </details>
@@ -36,7 +37,8 @@ Pick your platform to download the recommended build. Use **All files** below fo
   <summary>فارسی</summary>
 
 - **اندروید:** APK را دانلود و باز کنید؛ اگر خواسته شد، نصب را مجاز کنید.
-- **ویندوز:** Portable را دانلود و از حالت فشرده خارج کنید، سپس `Hiddify.exe` را اجرا کنید. این فایل امضای ناشر ندارد و ممکن است ویندوز هشدار امنیتی بدهد.
+- **ویندوز (۱۰ و ۱۱، x64 و ARM):** فایل **Setup** را دانلود و اجرا کنید تا برنامه نصب شود؛ از آن به بعد برنامه خودش به‌روز می‌شود. یا نسخه Portable را از حالت فشرده خارج و `Hiddify.exe` را اجرا کنید. این فایل‌ها امضای ناشر ندارند؛ اگر ویندوز هشدار SmartScreen داد، روی **More info ← Run anyway** بزنید.
+- **آیفون جیلبریک‌شده:** فایل `Hiddify-iOS-Jailbreak.ipa` را با TrollStore یا Filza/AppSync نصب کنید.
 - **مک:** DMG را باز کنید و Hiddify را به Applications منتقل کنید.
 - **لینوکس:** AppImage را اجرایی کنید و باز کنید؛ کاربران Debian می‌توانند بسته‌ی DEB را نصب کنند.
 - **اتصال:** اشتراک را در برنامه اضافه کنید و **اتصال** را بزنید.

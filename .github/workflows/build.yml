@@ -23,6 +23,11 @@ on:
       publish-release:
         type: boolean
         default: true
+      # The fork's own release (build-on-core-update.yml): no store uploads, but the Windows
+      # setup and an iOS IPA for jailbroken devices are built too.
+      personal-release:
+        type: boolean
+        default: false
       artifact-retention-days:
         type: number
         default: 1
@@ -70,8 +75,11 @@ jobs:
         id: platformMatrix
         env:
           PUBLISH_RELEASE: ${{ inputs.publish-release }}
+          PERSONAL_RELEASE: ${{ inputs.personal-release }}
         run: |
-          if [[ "$PUBLISH_RELEASE" == 'true' ]]; then
+          if [[ "$PERSONAL_RELEASE" == 'true' && "$PUBLISH_RELEASE" != 'true' ]]; then
+            echo 'include=[{"platform":"android-apk","os":"ubuntu-latest","targets":"apk"},{"platform":"windows","os":"windows-latest","aarch":"amd64","targets":"exe,zip"},{"platform":"linux","os":"ubuntu-22.04","aarch":"amd64","targets":"deb,gz,AppImage"},{"platform":"macos","os":"macos-26","aarch":"universal","targets":"dmg,pkg"},{"platform":"ios-jailbreak","os":"macos-26","aarch":"universal","targets":"ipa"}]' >> "$GITHUB_OUTPUT"
+          elif [[ "$PUBLISH_RELEASE" == 'true' ]]; then
             echo 'include=[{"platform":"android-apk","os":"ubuntu-latest","targets":"apk"},{"platform":"android-aab","os":"ubuntu-latest","targets":"aab"},{"platform":"windows","os":"windows-latest","aarch":"amd64","targets":"exe,msix,zip"},{"platform":"linux","os":"ubuntu-22.04","aarch":"amd64","targets":"deb,gz,AppImage"},{"platform":"macos","os":"macos-26","aarch":"universal","targets":"dmg,pkg"},{"platform":"macos-appstore","os":"macos-26","aarch":"universal","targets":"pkg,dmg"},{"platform":"ios","os":"macos-26","aarch":"universal","filename":"hiddify-ios","targets":"ipa"}]' >> "$GITHUB_OUTPUT"
           else
             echo 'include=[{"platform":"android-apk","os":"ubuntu-latest","targets":"apk"},{"platform":"android-aab","os":"ubuntu-latest","targets":"aab"},{"platform":"windows","os":"windows-latest","aarch":"amd64","targets":"exe,msix,zip"},{"platform":"linux","os":"ubuntu-22.04","aarch":"amd64","targets":"deb,gz,AppImage"},{"platform":"macos","os":"macos-26","aarch":"universal","targets":"dmg,pkg"}]' >> "$GITHUB_OUTPUT"
@@ -113,7 +121,7 @@ jobs:
       # Azure Artifact Signing (azure/login OIDC) and actions/attest-build-provenance
       id-token: write
       attestations: write
-    continue-on-error: ${{ inputs.publish-release && matrix.platform != 'ios' }}
+    continue-on-error: ${{ (inputs.publish-release && matrix.platform != 'ios') || matrix.platform == 'ios-jailbreak' }}
 
     strategy:
       fail-fast: false
@@ -282,6 +290,27 @@ jobs:
           echo "keyPassword=${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}" >> android/key.properties
           echo "keyAlias=${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}" >> android/key.properties
 
+      # Every release must be signed with the same key, or Android refuses to install the update.
+      - name: Setup Android Signing Properties (personal release)
+        if: ${{ inputs.upload-artifact && inputs.personal-release && !inputs.publish-release && startsWith(matrix.platform,'android') }}
+        env:
+          ANDROID_SIGNING_KEY: ${{ secrets.ANDROID_SIGNING_KEY }}
+          ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
+          ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+          ANDROID_SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
+        run: |
+          if [[ -z "$ANDROID_SIGNING_KEY" ]]; then
+            echo '::warning::ANDROID_SIGNING_KEY is not set: the APK gets a throwaway debug key, so in-app updates to the next release will fail.'
+            exit 0
+          fi
+          echo "$ANDROID_SIGNING_KEY" | base64 --decode > android/key.jks
+          {
+            echo "storeFile=$(pwd)/android/key.jks"
+            echo "storePassword=$ANDROID_SIGNING_STORE_PASSWORD"
+            echo "keyPassword=$ANDROID_SIGNING_KEY_PASSWORD"
+            echo "keyAlias=$ANDROID_SIGNING_KEY_ALIAS"
+          } > android/key.properties
+
       # Windows code signing. A publicly trusted certificate is what keeps the
       # Go/Flutter binaries off the VirusTotal "trojan" heuristics; see
       # docs/windows-code-signing.md for the secrets and the backend choice
@@ -384,6 +413,11 @@ jobs:
           make windows-exe-release
           make windows-msix-release
 
+      # The setup (unsigned) is what the app's own updater installs on Windows.
+      - name: Package Windows Setup (personal release)
+        if: matrix.platform == 'windows' && inputs.upload-artifact && inputs.personal-release && !inputs.publish-release
+        run: make windows-exe-release
+
       - name: Build the Mac App Store version
         if: matrix.platform == 'macos-appstore' && inputs.upload-artifact
         env:
@@ -429,7 +463,7 @@ jobs:
         run: |
           Get-ChildItem -Path dist -Recurse | Select-Object FullName
           New-Item -ItemType Directory -Path "out" -Force | Out-Null
-          if ('${{ inputs.publish-release }}' -eq 'true') {
+          if ('${{ inputs.publish-release || inputs.personal-release }}' -eq 'true') {
             $targets = "${{ matrix.targets }}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ }
           } else {
             $targets = @('zip')

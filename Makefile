@@ -603,3 +603,9 @@ ios-temp-prepare:
 	cd ios
 	pod install
 
+
+# iOS for jailbroken devices and TrollStore (fork's personal release): no Apple signature.
+ios-jailbreak-install-deps: ios-install-deps
+ios-jailbreak-prepare: ios-prepare
+ios-jailbreak-release:
+	bash .github/scripts/build_ios_jailbreak_ipa.sh --target $(TARGET) $(BUILD_ARGS)
