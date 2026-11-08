@@ -144,3 +144,13 @@ jobs:
           else
             gh release create "$tag" ./out/* --title "Hiddify ${APP_VERSION}" --notes-file release.md
           fi
+
+  virustotal:
+    needs: [check, publish-custom-release]
+    if: needs.publish-custom-release.result == 'success'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/virustotal_scan.yml
+    secrets: inherit
+    with:
+      release_tag: v${{ needs.check.outputs.app-version }}

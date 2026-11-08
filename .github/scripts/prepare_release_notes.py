@@ -156,15 +156,22 @@ def apply_vt_results(body: str, results: dict[str, dict | None]) -> str:
 
 
 def render_links(tag: str, assets: dict[str, "Path | str"], bust: str, old_body: str = "") -> str:
-    """One row per platform with all its files, so the whole table stays above the "Read more"
-    cut of GitHub's releases list. assets maps file name -> local Path or sha256 hex string;
-    old_body is accepted for the callers' sake."""
+    """One row per platform with all its files and their VirusTotal badges, so the whole table
+    stays above the "Read more" cut of GitHub's releases list.
+
+    assets maps file name -> local Path (hashed here) or a known sha256 hex string.
+    old_body: a published body whose VirusTotal badges are kept for unchanged files."""
     files: dict[str, list[str]] = {}
     for os_name, filename, label in ASSET_CATALOG:
-        if find_asset(assets, filename) is None:
+        path = find_asset(assets, filename)
+        if path is None:
             continue
         url = f"https://github.com/{REPO}/releases/download/{tag}/{filename}"
-        files.setdefault(os_name, []).append(f'<a href="{url}">{label}</a>')
+        link = f'<a href="{url}">{label}</a>'
+        if filename not in NO_VT_SCAN:
+            digest = path if isinstance(path, str) else sha256_file(path)
+            link += " " + vt_badge_img(digest, existing_vt_src(old_body, digest) or vt_badge_src(None))
+        files.setdefault(os_name, []).append(link)
 
     if not files:
         return "_No release assets found in the build output._\n"
