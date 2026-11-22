@@ -89,6 +89,6 @@ jobs:
           git push -f origin "refs/tags/v$app_version"
 
           # personal-build.yml builds that commit: the platform workflows check out the run's ref.
-          gh workflow run personal-build.yml --ref "v$app_version" \
+          gh workflow run personal-build.yml --repo "$GITHUB_REPOSITORY" --ref "v$app_version" \
             -f app-version="$app_version" -f core-version="$core_version"
           echo "Started personal-build.yml for v$app_version: https://github.com/$GITHUB_REPOSITORY/actions/workflows/personal-build.yml"
