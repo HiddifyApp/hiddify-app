@@ -11,6 +11,17 @@ abstract class Constants {
   static const githubReleasesApiUrl = "https://api.github.com/repos/HiddifyApp/hiddify-app/releases";
   static const githubLatestReleaseUrl = "https://github.com/HiddifyApp/hiddify-app/releases/latest";
   static const telegramChannelUrl = "https://t.me/HiddifyConfig";
+  static const telegramChannelHandle = "@HiddifyConfig";
+
+  /// Opens the channel in the Telegram app; [telegramChannelUrl] when the app is not there.
+  static const telegramChannelAppUrl = "tg://resolve?domain=HiddifyConfig";
+  static const bugReportEmail = "bug@hiddify.com";
+
+  /// The bot that turns a report into an issue; the app starts it with the device's details
+  /// (telegram_report_link.dart).
+  static const bugReportTelegramBot = "hiddify_issues_bot";
+  static const bugReportTelegramName = "@$bugReportTelegramBot";
+  static const bugReportGithubIssueUrl = "https://github.com/HiddifyApp/hiddify-app/issues/new";
   static const privacyPolicyUrl = "https://hiddify.org/privacy-policy/";
   static const termsAndConditionsUrl = "https://hiddify.org/terms/";
   static const cfWarpPrivacyPolicy = "https://www.cloudflare.com/application/privacypolicy/";
@@ -127,7 +138,12 @@ abstract class KeyboardConst {
   };
   static final horizontalArrows = {LogicalKeyboardKey.arrowLeft, LogicalKeyboardKey.arrowRight};
   static final verticalArrows = {LogicalKeyboardKey.arrowUp, LogicalKeyboardKey.arrowDown};
-  static final select = {LogicalKeyboardKey.select, LogicalKeyboardKey.enter, LogicalKeyboardKey.tab};
+  static final select = {LogicalKeyboardKey.select, LogicalKeyboardKey.enter, LogicalKeyboardKey.numpadEnter};
+
+  /// Keys that open a focused link. Never Tab: its key-down moves focus onto the
+  /// link and its key-up then lands there, so a link would open just by being
+  /// reached with Tab.
+  static final activate = {...select, LogicalKeyboardKey.space};
 }
 
 abstract class ChainConst {

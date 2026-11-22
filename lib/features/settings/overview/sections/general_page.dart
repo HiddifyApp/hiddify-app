@@ -29,6 +29,13 @@ class GeneralPage extends HookConsumerWidget {
           const LocalePrefTile(),
           const ThemeModePrefTile(),
           SwitchListTile.adaptive(
+            title: Text(t.pages.settings.general.reduceAnimations),
+            subtitle: Text(t.pages.settings.general.reduceAnimationsMsg),
+            secondary: const Icon(Icons.animation_rounded),
+            value: ref.watch(Preferences.reduceAnimations),
+            onChanged: ref.read(Preferences.reduceAnimations.notifier).update,
+          ),
+          SwitchListTile.adaptive(
             title: Text(t.pages.settings.general.autoIpCheck),
             value: ref.watch(Preferences.autoCheckIp),
             secondary: const Icon(Icons.flag_rounded),

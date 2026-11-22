@@ -22,15 +22,13 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    outputs:
-      should-build: ${{ steps.check.outputs.should-build }}
-      core-version: ${{ steps.check.outputs.core-version }}
-      app-version: ${{ steps.check.outputs.app-version }}
-      source-ref: ${{ steps.check.outputs.source-ref }}
     steps:
+      # Merging upstream changes to .github/workflows needs a token with the workflow scope
+      # (SYNC_TOKEN); GITHUB_TOKEN can never push them.
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          token: ${{ secrets.SYNC_TOKEN || github.token }}
       - id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -49,7 +47,12 @@ jobs:
               echo "Upstream merge conflicts with the personal fork. Resolve them on main; no files were overwritten." >&2
               exit 1
             fi
-            git push origin HEAD:main
+            if ! git push origin HEAD:main; then
+              if git diff --name-only HEAD@{1} HEAD | grep -q '^\.github/workflows/'; then
+                echo "::error::Upstream changed .github/workflows, which GITHUB_TOKEN may not push. Add a SYNC_TOKEN secret: a token with the repo and workflow scopes." >&2
+              fi
+              exit 1
+            fi
             upstream_updated=true
           fi
           source_ref="$(git rev-parse HEAD)"
@@ -70,7 +73,6 @@ jobs:
           fi
           if [[ "$FORCE_BUILD" != 'true' && "$upstream_updated" != 'true' && "$core_updated" != 'true' ]]; then
             echo "No upstream app or hiddify-core update (app=$source_ref, core=$core_version)."
-            echo 'should-build=false' >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -78,80 +80,15 @@ jobs:
           latest_app_version="$(gh release list --repo "$GITHUB_REPOSITORY" --limit 100 --json tagName,isDraft,isPrerelease --jq '.[] | select(.isDraft == false and .isPrerelease == false) | .tagName | ltrimstr("v")' | sort -V | tail -n 1)"
           app_version="$(python3 .github/scripts/next_release_version.py "$current_app_version" "$core_version" "$latest_app_version")"
           echo "Building app $app_version from $source_ref with hiddify-core $core_version (upstream app update: $upstream_updated)."
-          echo "core-version=$core_version" >> "$GITHUB_OUTPUT"
-          echo "app-version=$app_version" >> "$GITHUB_OUTPUT"
-          echo "source-ref=$source_ref" >> "$GITHUB_OUTPUT"
-          echo 'should-build=true' >> "$GITHUB_OUTPUT"
 
-  build:
-    needs: check
-    if: needs.check.outputs.should-build == 'true'
-    uses: ./.github/workflows/build.yml
-    permissions:
-      actions: write
-      attestations: write
-      contents: write
-      id-token: write
-    secrets: inherit
-    with:
-      upload-artifact: true
-      tag-name: draft
-      channel: prod
-      core-version: ${{ needs.check.outputs.core-version }}
-      app-version: ${{ needs.check.outputs.app-version }}
-      source-ref: ${{ needs.check.outputs.source-ref }}
-      publish-release: false
-      personal-release: true
-      artifact-retention-days: 30
+          # The release commit carries the version; only its tag is pushed, so main keeps
+          # upstream's version line and the next merge does not conflict on it.
+          python3 .github/scripts/apply_release_versions.py "$core_version" "$app_version"
+          git commit -qam "release: personal version $app_version" --allow-empty
+          git tag -f "v$app_version"
+          git push -f origin "refs/tags/v$app_version"
 
-  publish-custom-release:
-    needs: [check, build]
-    if: needs.check.outputs.should-build == 'true' && needs.build.result == 'success'
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: write
-    steps:
-      - name: Checkout release template
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ needs.check.outputs.source-ref }}
-      - name: Download platform builds
-        uses: actions/download-artifact@v7
-        with:
-          pattern: "*-${{ needs.check.outputs.app-version }}"
-          merge-multiple: true
-          path: ./out
-      - name: Prepare release notes
-        env:
-          APP_VERSION: ${{ needs.check.outputs.app-version }}
-          CORE_VERSION: ${{ needs.check.outputs.core-version }}
-        run: |
-          set -euo pipefail
-          python3 .github/scripts/make_ios_source.py ./out "$APP_VERSION"
-          cp .github/release_message.md release.md
-          python3 .github/scripts/prepare_release_notes.py release.md ./out "v${APP_VERSION}"
-          printf '\n<!-- hiddify-core-version: %s -->\n' "$CORE_VERSION" >> release.md
-      - name: Publish fork release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          APP_VERSION: ${{ needs.check.outputs.app-version }}
-        run: |
-          set -euo pipefail
-          tag="v${APP_VERSION}"
-          if gh release view "$tag" >/dev/null 2>&1; then
-            gh release upload "$tag" ./out/* --clobber
-            gh release edit "$tag" --title "Hiddify ${APP_VERSION}" --notes-file release.md
-          else
-            gh release create "$tag" ./out/* --title "Hiddify ${APP_VERSION}" --notes-file release.md
-          fi
-
-  virustotal:
-    needs: [check, publish-custom-release]
-    if: needs.publish-custom-release.result == 'success'
-    permissions:
-      contents: write
-    uses: ./.github/workflows/virustotal_scan.yml
-    secrets: inherit
-    with:
-      release_tag: v${{ needs.check.outputs.app-version }}
+          # personal-build.yml builds that commit: the platform workflows check out the run's ref.
+          gh workflow run personal-build.yml --ref "v$app_version" \
+            -f app-version="$app_version" -f core-version="$core_version"
+          echo "Started personal-build.yml for v$app_version: https://github.com/$GITHUB_REPOSITORY/actions/workflows/personal-build.yml"

@@ -44,10 +44,15 @@ ASSET_CATALOG: list[tuple[str, str, str]] = [
     ("macOS (v10.15+)", "Hiddify-MacOS-Installer.pkg", "PKG Universal"),
     ("macOS (v10.15+)", "Hiddify-MacOS-AppStore.dmg", "App Store DMG Universal"),
     ("macOS (v10.15+)", "Hiddify-MacOS-AppStore.pkg", "App Store PKG Universal"),
-    ("Linux", "Hiddify-Linux-x64-AppImage.AppImage", "AppImage x64"),
-    ("Linux", "Hiddify-Linux-x64-AppImage.tar.gz", "AppImage x64 (tar.gz)"),
-    ("Linux", "Hiddify-Debian-x64.deb", "DebPackage x64"),
-    ("Linux", "Hiddify-rpm-x64.rpm", "RpmPackage x64"),
+    # Names as build-linux.yml writes them (and the in-app updater looks them up).
+    ("Linux", "Hiddify-Linux-x64.AppImage", "AppImage x64"),
+    ("Linux", "Hiddify-Debian-x64.deb", "Deb x64"),
+    ("Linux", "Hiddify-rpm-x64.rpm", "RPM x64"),
+    ("Linux", "Hiddify-Linux-x64.AppImage.tar.gz", "AppImage x64 (tar.gz)"),
+    ("Linux", "Hiddify-Linux-arm64.AppImage", "AppImage ARM64"),
+    ("Linux", "Hiddify-Debian-arm64.deb", "Deb ARM64"),
+    ("Linux", "Hiddify-rpm-arm64.rpm", "RPM ARM64"),
+    ("Linux", "Hiddify-Linux-arm64.AppImage.tar.gz", "AppImage ARM64 (tar.gz)"),
     ("iOS", "Hiddify-iOS.ipa", "IPA iOS"),
     ("iOS", "Hiddify-iOS-Jailbreak.ipa", "IPA Jailbreak / TrollStore"),
 ]
@@ -57,6 +62,9 @@ ASSET_CATALOG: list[tuple[str, str, str]] = [
 NO_VT_SCAN = {"Hiddify-iOS.ipa", "Hiddify-iOS-Jailbreak.ipa"}
 
 ASSET_MARKER = "<!-- ASSET_LINKS -->"
+CHANGELOG_MARKER = "<!-- CHANGELOG -->"
+# The "Change Logs" section, which the app's update dialog also shows (github_release_parser.dart).
+CHANGELOG_FILE = Path(__file__).resolve().parents[1] / "release_changelog.md"
 QUICK_ASSET_MARKER = "<!-- QUICK_DOWNLOADS -->"
 TABLE_BEGIN = "<!-- ASSETS:BEGIN -->"
 TABLE_END = "<!-- ASSETS:END -->"
@@ -73,7 +81,7 @@ QUICK_DOWNLOADS = [
     ("Android", ("Hiddify-Android-universal.apk", "Hiddify-Android-arm64.apk")),
     ("Windows", ("Hiddify-Windows-Setup-x64.exe", "Hiddify-Windows-Portable-x64.zip")),
     ("macOS (v10.15+)", ("Hiddify-MacOS.dmg", "Hiddify-MacOS-Installer.pkg")),
-    ("Linux", ("Hiddify-Linux-x64-AppImage.AppImage", "Hiddify-Debian-x64.deb")),
+    ("Linux", ("Hiddify-Linux-x64.AppImage", "Hiddify-Debian-x64.deb")),
     ("iOS", ("Hiddify-iOS.ipa", "Hiddify-iOS-Jailbreak.ipa")),
 ]
 
@@ -220,6 +228,19 @@ def render_quick_downloads(tag: str, assets: dict[str, "Path | str"], bust: str)
     return "<table><tbody><tr>\n" + "\n".join(cards) + "\n</tr></tbody></table>\n"
 
 
+def fill_changelog(text: str, changelog_path: Path = CHANGELOG_FILE) -> str:
+    """Fills the CHANGELOG marker from release_changelog.md; drops the section when it is empty."""
+    if CHANGELOG_MARKER not in text:
+        return text
+    changelog = changelog_path.read_text(encoding="utf-8") if changelog_path.is_file() else ""
+    changelog = re.sub(r"<!--.*?-->", "", changelog, flags=re.DOTALL).strip()
+    if changelog:
+        return text.replace(CHANGELOG_MARKER, changelog)
+    heading = re.compile(r"^#{1,6}[^\n]*\n\s*" + re.escape(CHANGELOG_MARKER) + r"\s*", re.MULTILINE)
+    text, dropped = heading.subn("", text)
+    return text if dropped else text.replace(CHANGELOG_MARKER, "")
+
+
 def wrap_table(links: str) -> str:
     return f"{TABLE_BEGIN}\n{links.rstrip()}\n{TABLE_END}\n"
 
@@ -304,11 +325,12 @@ def main() -> int:
 
     text = notes_path.read_text()
     text = text.replace("RELEASE_TAG", tag)
+    text = fill_changelog(text)
     links = render_links(tag, assets, bust)
     quick_downloads = render_quick_downloads(tag, assets, bust)
     # Strip the template's own comments first; the ASSETS markers are added after
     # and stay in the body so the table can be rewritten later.
-    text = re.sub(r"<!--(?!\s*(?:ASSET_LINKS|QUICK_DOWNLOADS)\s*-->).*?-->\n?", "", text, flags=re.DOTALL)
+    text = re.sub(r"<!--(?!\s*(?:ASSET_LINKS|QUICK_DOWNLOADS|CHANGELOG)\s*-->).*?-->\n?", "", text, flags=re.DOTALL)
     if QUICK_ASSET_MARKER in text:
         text = text.replace(QUICK_ASSET_MARKER, quick_downloads)
     if ASSET_MARKER in text:

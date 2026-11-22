@@ -1,0 +1,268 @@
+# The fork's own release (HiddifyApp/hiddify-app), started by build-on-core-update.yml on the
+# version tag it pushed (that commit already carries the release version). Fork-only file, so
+# upstream changes to build.yml never conflict with it.
+#
+#   codegen ─┬─ test
+#            ├─ android        (upstream build-android.yml: APKs signed with ANDROID_SIGNING_*)
+#            ├─ linux          (upstream build-linux.yml: x64 and arm64 AppImage, deb, rpm)
+#            ├─ windows        (unsigned Setup.exe and portable zip; the updater installs the Setup)
+#            ├─ macos          (ad hoc signed dmg and pkg)
+#            └─ ios-jailbreak  (ldid-signed IPA for TrollStore / jailbreak / own certificates)
+#                  └─► publish (GitHub release + iOS app source) ─► virustotal
+#
+# A failed platform is left out of the release; a failed test publishes nothing.
+name: Personal release build
+
+on:
+  workflow_dispatch:
+    inputs:
+      app-version:
+        description: The release version (the tag is v<app-version>)
+        required: true
+        type: string
+      core-version:
+        description: The hiddify-core version built in
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: personal-build-${{ inputs.app-version }}
+  cancel-in-progress: false
+
+env:
+  CHANNEL: prod
+
+jobs:
+  codegen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      build-number: ${{ steps.build-number.outputs.build }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check the version and find the build number
+        id: build-number
+        env:
+          APP_VERSION: ${{ inputs.app-version }}
+        run: |
+          set -euo pipefail
+          pubspec="$(sed -n 's/^version: *\([0-9.]*\)+\([0-9]*\).*/\1 \2/p' pubspec.yaml)"
+          read -r name build <<< "$pubspec"
+          if [[ "$name" != "$APP_VERSION" ]]; then
+            echo "::error::pubspec.yaml has version $name, not $APP_VERSION: start this workflow on the v$APP_VERSION tag."
+            exit 1
+          fi
+          echo "Version $name, build $build"
+          echo "build=$build" >> "$GITHUB_OUTPUT"
+
+      - uses: ./.github/actions/setup-flutter
+        with:
+          platform: common
+          install-deps: false
+
+      - name: Pack the generated code
+        run: |
+          set -euo pipefail
+          git ls-files --others -- lib test > "$RUNNER_TEMP/generated-files.txt"
+          test -s "$RUNNER_TEMP/generated-files.txt"
+          tar -czf generated-code.tar.gz -T "$RUNNER_TEMP/generated-files.txt"
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: generated-code
+          path: generated-code.tar.gz
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
+
+  test:
+    needs: codegen
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-flutter
+        with:
+          platform: linux-amd64
+          install-deps: false
+          generated-code: true
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Test
+        run: flutter test
+
+  android:
+    needs: codegen
+    uses: ./.github/workflows/build-android.yml
+    secrets: inherit
+    permissions:
+      contents: read
+    with:
+      release: true
+      channel: prod
+      targets: '["apk"]'
+      build-number: ${{ needs.codegen.outputs.build-number }}
+
+  linux:
+    needs: codegen
+    uses: ./.github/workflows/build-linux.yml
+    secrets: inherit
+    permissions:
+      contents: read
+    with:
+      release: true
+      channel: prod
+
+  windows:
+    needs: codegen
+    runs-on: windows-latest
+    timeout-minutes: 60
+    continue-on-error: true
+    env:
+      IS_GITHUB_ACTIONS: 1
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-flutter
+        with:
+          platform: windows
+          generated-code: true
+      - name: Build the portable zip
+        run: make windows-zip-release
+      - name: Package Setup.exe
+        run: make windows-exe-release
+      # The names must match prepare_release_notes.py and the in-app updater (install_kind.dart).
+      - name: Collect the packages
+        run: |
+          New-Item -ItemType Directory -Path out -Force | Out-Null
+          $names = [ordered]@{ exe = 'Hiddify-Windows-Setup-x64.exe'; zip = 'Hiddify-Windows-Portable-x64.zip' }
+          foreach ($ext in $names.Keys) {
+            $file = Get-ChildItem -Path dist -Recurse -File | Where-Object { $_.Extension -ieq ".$ext" } | Select-Object -First 1
+            if (-not $file) { throw "No *.$ext under dist" }
+            Move-Item -Path $file.FullName -Destination (Join-Path out $names[$ext]) -Force
+          }
+          Get-ChildItem -Path out
+      - uses: actions/upload-artifact@v6
+        with:
+          name: windows
+          path: out
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
+
+  macos:
+    needs: codegen
+    runs-on: macos-26
+    timeout-minutes: 60
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+      # No Developer ID: signed ad hoc, the VPN runs in the root helper the user installs.
+      - name: Use ad hoc signing
+        run: |
+          cp macos/Runner/Configs/Unsigned.xcconfig "$RUNNER_TEMP/hiddify-macos-signing.xcconfig"
+          echo "XCODE_XCCONFIG_FILE=$RUNNER_TEMP/hiddify-macos-signing.xcconfig" >> "$GITHUB_ENV"
+      - uses: ./.github/actions/setup-flutter
+        with:
+          platform: macos
+          generated-code: true
+      - name: Build
+        run: make macos-release
+      - name: Collect the packages
+        run: |
+          mkdir out
+          mv dist/*/*.dmg out/Hiddify-MacOS.dmg
+          mv dist/*/*.pkg out/Hiddify-MacOS-Installer.pkg
+      - uses: actions/upload-artifact@v6
+        with:
+          name: macos
+          path: out
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
+
+  ios-jailbreak:
+    needs: codegen
+    runs-on: macos-26
+    timeout-minutes: 60
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-flutter
+        with:
+          platform: ios-jailbreak
+          generated-code: true
+      - name: Build
+        run: make ios-jailbreak-release
+      - uses: actions/upload-artifact@v6
+        with:
+          name: ios-jailbreak
+          path: out
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
+
+  publish:
+    if: ${{ !cancelled() && needs.test.result == 'success' }}
+    needs: [test, android, linux, windows, macos, ios-jailbreak]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download the builds
+        uses: actions/download-artifact@v7
+        with:
+          path: artifacts
+
+      - name: Gather the release files
+        run: |
+          set -euo pipefail
+          mkdir out
+          find artifacts -mindepth 2 -type f ! -name 'generated-code.tar.gz' -exec mv {} out/ \;
+          ls -la out
+          test -n "$(ls out)" || { echo "::error::No platform built."; exit 1; }
+          [[ -f out/Hiddify-Android-universal.apk ]] || echo "::warning::Android did not build."
+          [[ -f out/Hiddify-Windows-Setup-x64.exe ]] || echo "::warning::Windows did not build."
+          [[ -f out/Hiddify-MacOS.dmg ]] || echo "::warning::macOS did not build."
+          [[ -f out/Hiddify-Linux-x64.AppImage ]] || echo "::warning::Linux did not build."
+          [[ -f out/Hiddify-iOS-Jailbreak.ipa ]] || echo "::warning::iOS did not build."
+
+      - name: Prepare the release notes and the iOS app source
+        env:
+          APP_VERSION: ${{ inputs.app-version }}
+          CORE_VERSION: ${{ inputs.core-version }}
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/make_ios_source.py ./out "$APP_VERSION"
+          cp .github/release_message.md release.md
+          python3 .github/scripts/prepare_release_notes.py release.md ./out "v${APP_VERSION}"
+          printf '\n<!-- hiddify-core-version: %s -->\n' "$CORE_VERSION" >> release.md
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APP_VERSION: ${{ inputs.app-version }}
+        run: |
+          set -euo pipefail
+          tag="v${APP_VERSION}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" ./out/* --clobber
+            gh release edit "$tag" --title "Hiddify ${APP_VERSION}" --notes-file release.md --latest
+          else
+            gh release create "$tag" ./out/* --verify-tag --title "Hiddify ${APP_VERSION}" --notes-file release.md --latest
+          fi
+
+  virustotal:
+    needs: publish
+    uses: ./.github/workflows/virustotal_scan.yml
+    secrets: inherit
+    permissions:
+      contents: write
+    with:
+      release_tag: v${{ inputs.app-version }}

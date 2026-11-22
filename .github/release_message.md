@@ -15,6 +15,10 @@
 
 <!-- ASSET_LINKS -->
 
+## Change Logs
+
+<!-- CHANGELOG -->
+
 ## Install guide
 
 <details>
