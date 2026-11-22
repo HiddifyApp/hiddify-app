@@ -21,7 +21,7 @@ abstract class Constants {
   /// (telegram_report_link.dart).
   static const bugReportTelegramBot = "hiddify_issues_bot";
   static const bugReportTelegramName = "@$bugReportTelegramBot";
-  static const bugReportGithubIssueUrl = "https://github.com/HiddifyApp/hiddify-app/issues/new";
+  static const bugReportGithubIssueUrl = "https://github.com/hiddify/hiddify-app/issues/new";
   static const privacyPolicyUrl = "https://hiddify.org/privacy-policy/";
   static const termsAndConditionsUrl = "https://hiddify.org/terms/";
   static const cfWarpPrivacyPolicy = "https://www.cloudflare.com/application/privacypolicy/";
